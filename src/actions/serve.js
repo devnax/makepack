@@ -1,18 +1,33 @@
 import inquirer from 'inquirer'
+import fs from 'fs-extra'
+import path from 'path'
 import { createServer as createViteServer } from 'vite';
 import express from 'express';
+import { glob } from 'glob'
 
 const app = express();
 
 const serve = async (args) => {
+
    if (args.entry === undefined) {
-      const { entry } = await inquirer.prompt([{
-         type: 'input',
-         name: 'entry',
-         message: 'Enter the root file',
-         default: 'src/index.js'
-      }]);
-      args.entry = entry;
+      const indexes = await glob('src/index.{ts,js,tsx,jsx}', {
+         cwd: process.cwd()
+      })
+      if (!indexes.length) {
+         let { entry } = await inquirer.prompt([{
+            type: 'input',
+            name: 'entry',
+            message: 'Enter the root file',
+         }]);
+         entry = "src/" + entry
+
+         if (!fs.existsSync(path.join(process.cwd(), entry))) {
+            throw new Error(`invalid entry: ${entry}`);
+         }
+         args.entry = entry;
+      } else {
+         args.entry = indexes[0];
+      }
    }
 
    let template = `

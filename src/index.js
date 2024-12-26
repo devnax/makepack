@@ -2,7 +2,7 @@
 
 import { Command } from "commander";
 import serve from "./actions/serve.js";
-import build from "./actions/build.js";
+import pack from "./actions/pack.js";
 import create from "./actions/create/index.js";
 
 const program = new Command();
@@ -22,10 +22,9 @@ program
    .action(serve);
 
 program
-   .command("build")
-   .option("-e, --entry <type>", "entry file o directory (you can use glob pattern)", "src/**/*.{tsx,ts,js,jsx}")
-   .option("-out, --outdir <type>", "output directory", "build")
-   .description("build the project")
-   .action(build);
-
+   .command("pack")
+   .option("-e, --entry <type>", "Entry file or directory (you can use a glob pattern)", "src/**/*.{tsx,ts,js,jsx}")
+   .option("-p, --publish", "Publish the project to the npm repository", false)
+   .description("Build the project and optionally publish it to the npm repository")
+   .action(pack);
 program.parse();

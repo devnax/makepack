@@ -1,8 +1,8 @@
 {
   "name": "makepack",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
-  "description": "A simple CLI tool to create a new npm package",
+  "description": "A CLI tool to create, build, and manage JavaScript, TypeScript, React, and React-TypeScript libraries for npm projects.",
   "categories": [
     "Other"
   ],
@@ -15,31 +15,30 @@
     "type": "git",
     "url": "https://github.com/devnax/makepack"
   },
+  "bugs": {
+    "url": "https://github.com/devnax/makepack/issues"
+  },
+  "homepage": "https://github.com/devnax/makepack#readme",
   "scripts": {},
   "devDependencies": {
-    "@eslint/js": "^9.15.0",
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.10.1",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
-    "commander": "^12.1.0",
     "esbuild": "^0.24.2",
-    "eslint": "^9.15.0",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.4.14",
     "express": "^4.21.1",
     "fs-extra": "^11.2.0",
-    "globals": "^15.12.0",
-    "inquirer": "^12.1.0",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.15.0",
-    "vite": "^6.0.2"
+    "vite": "^6.0.2",
+    "glob": "^11.0.0"
   },
   "dependencies": {
-    "glob": "^11.0.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  }
+    "commander": "^12.1.0",
+    "inquirer": "^12.1.0"
+  },
+  "keywords": [
+    "CLI",
+    "npm",
+    "library",
+    "JavaScript",
+    "TypeScript",
+    "React",
+    "npm-package"
+  ]
 }

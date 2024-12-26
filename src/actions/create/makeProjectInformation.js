@@ -15,24 +15,14 @@ const makeProjectInformation = async () => {
          choices: ['typescript', 'javascript', 'react with typescript', 'react with javascript'],
          default: 'typeScript'
       },
-      {
-         type: 'input',
-         name: 'rootdir',
-         message: 'Root directory of the project',
-         default: "src"
-      },
-      {
-         type: 'input',
-         name: 'entry',
-         message: 'Entry file of the project',
-         default: "index"
-      }
    ])
 
    if (projectDir.diraname !== cwdFolder) {
       fs.removeSync(projectDir.cwd)
       fs.mkdirSync(projectDir.cwd)
    }
+   information.entry = "index"
+   information.rootdir = "src"
 
    switch (information.template) {
       case "typescript":
@@ -54,9 +44,10 @@ const makeProjectInformation = async () => {
    /* 
    {
      port: 3000,
-     outdir: "build",
+     outdir: "pack",
      cwd: 'C:\xampp\htdocs\makepack\asd',
      diraname: 'asd',
+     isCurrentDir: false,
      template: 'typescript',
      rootdir: 'src',
      entry: 'index'
@@ -65,7 +56,8 @@ const makeProjectInformation = async () => {
 
    return {
       port: 3000,
-      outdir: "build",
+      outdir: "pack",
+      rootdir: "src",
       ...projectDir,
       ...information
    }

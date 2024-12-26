@@ -3,16 +3,19 @@ import fs from 'fs-extra';
 import path from 'path';
 import { glob } from 'glob'
 import ts from 'typescript'
+import { execSync, logLoader } from '../helpers';
 
 const pack = async (args) => {
+   args.outdir = 'pack'
    try {
       fs.removeSync(path.join(process.cwd(), args.outdir));
    } catch (err) { }
 
    const files = await glob('src/**/*.{tsx,ts,js,jsx}') || []
    const entries = files.map(entry => path.join(process.cwd(), entry))
+   let loader = logLoader("Generating a production build for the package...")
 
-   esbuild.build({
+   esbuild.buildSync({
       entryPoints: entries,
       outdir: path.join(process.cwd(), args.outdir),
       minify: true,
@@ -20,13 +23,18 @@ const pack = async (args) => {
       format: "esm",
       platform: 'node',
       loader: { '.ts': 'ts' },
-      tsconfig: path.join(process.cwd(), 'tsconfig.json'),
-   }).then(() => {
-      console.log('Build completed successfully!');
-   }).catch((err) => {
-      console.error('Build failed:', err);
-   });
-
+      //       tsconfig: path.join(process.cwd(), 'tsconfig.json'),
+      //       tsconfigRaw: `{
+      //   "compilerOptions": {
+      //     "declaration": true,
+      //     "emitDeclarationOnly": true,
+      //     "jsx": "react",
+      //     "module": "esnext",
+      //   }
+      // }`
+   })
+   loader.stop()
+   loader = logLoader("🔄 Generating TypeScript declarations...")
    const options = {
       declaration: true,
       emitDeclarationOnly: true,
@@ -52,8 +60,23 @@ const pack = async (args) => {
          }
       });
    } else {
-      console.log('Type declarations generated successfully!');
+      console.log('✅ TypeScript declaration files generated successfully!');
    }
+   loader.stop()
+
+   fs.copyFileSync(path.join(process.cwd(), '/package.json'), path.join(process.cwd(), args.outdir, `/package.json`))
+   console.log('✅ Production build generated successfully! The package is ready for deployment.');
+
+   if (args.publish) {
+      console.log("Publishing the production build to the npm repository...")
+      execSync(`npm publish`, {
+         cwd: path.join(process.cwd(), args.outdir)
+      })
+   } else {
+      console.log(`To publish your package:\n1. Navigate to the ${args.outdir} directory:\ncd ./${args.outdir}\n2. Publish the package to npm:\nnpm publish\nYour package is ready to share with the world! 🚀`);
+   }
+
+
 }
 
 export default pack

@@ -1,4 +1,4 @@
-import makepack from "./files/makepack.js";
+// import makepack from "./files/makepack.js";
 import packageJson from "./files/package-json.js";
 import gitignore from "./files/gitignore.js";
 import tsconfig from "./files/tsconfig.js";
@@ -12,10 +12,8 @@ import path from "path"
 
 export default async (args) => {
    const files = [
-      makepack(args),
       packageJson(args),
       gitignore(args),
-      tsconfig(args),
    ];
 
    switch (args.template) {
@@ -31,6 +29,11 @@ export default async (args) => {
       case "react with javascript":
          files.push(projectReactJs(args))
          break;
+   }
+
+   // push ts config
+   if (args.template.includes("typescript")) {
+      files.push(tsconfig(args))
    }
 
    for (let file of files) {
