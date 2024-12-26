@@ -1,0 +1,17 @@
+{
+  "name": "asd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "makepack serve",
+    "build": "makepack build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^4.4.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1"
+  },
+  "keywords": []
+}
