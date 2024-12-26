@@ -18,6 +18,7 @@ export default args => {
          "resolveJsonModule": true,
          "isolatedModules": true,
          "noEmit": true,
+         "jsx": "react"
       },
       "include": [args.rootdir],
       "exclude": [

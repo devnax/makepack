@@ -6,15 +6,15 @@ export default (args) => {
 
    if (args.template.includes("react")) {
       dependencies = {
-         "react": "^17.0.2",
-         "react-dom": "^17.0.2"
+         "react": "^19.0.0",
+         "react-dom": "^19.0.0"
       }
    }
 
    if (args.template.includes("typescript")) {
       devDependencies["typescript"] = "^4.4.2"
-      devDependencies["@types/react"] = "^18.3.12"
-      devDependencies["@types/react-dom"] = "^18.3.1"
+      devDependencies["@types/react"] = "^19.0.2"
+      devDependencies["@types/react-dom"] = "^19.0.2"
    }
 
    const json = {
