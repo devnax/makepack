@@ -1,4 +1,3 @@
-import inquirer from 'inquirer'
 import esbuild from 'esbuild';
 import fs from 'fs-extra';
 import path from 'path';
@@ -10,7 +9,7 @@ const pack = async (args) => {
       fs.removeSync(path.join(process.cwd(), args.outdir));
    } catch (err) { }
 
-   const files = await glob('test/**/*.{tsx,ts,js,jsx}') || []
+   const files = await glob('src/**/*.{tsx,ts,js,jsx}') || []
    const entries = files.map(entry => path.join(process.cwd(), entry))
 
    esbuild.build({

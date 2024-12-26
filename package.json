@@ -1,6 +1,6 @@
 {
   "name": "makepack",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "A simple CLI tool to create a new npm package",
   "categories": [

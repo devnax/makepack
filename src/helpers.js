@@ -2,9 +2,8 @@ import child_process from 'child_process'
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url'
-
 export const packageDir = process.cwd() + "/node_modules/xanos"
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+export const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 
 export const logLoader = (message = "") => {
@@ -58,3 +57,4 @@ export const packageJson = () => {
       console.error('Error reading package.json', error);
    }
 }
+

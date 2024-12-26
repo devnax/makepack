@@ -3,7 +3,8 @@
 import { Command } from "commander";
 import serve from "./actions/serve.js";
 import build from "./actions/build.js";
-import create from "./actions/create.js";
+import create from "./actions/create/index.js";
+
 const program = new Command();
 
 program.name("Make Pack").description("Usages");

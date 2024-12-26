@@ -5,7 +5,6 @@ import express from 'express';
 const app = express();
 
 const serve = async (args) => {
-
    if (args.entry === undefined) {
       const { entry } = await inquirer.prompt([{
          type: 'input',
