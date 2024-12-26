@@ -1,10 +1,8 @@
 import child_process from 'child_process'
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url'
-export const packageDir = process.cwd() + "/node_modules/xanos"
-export const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+export const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export const logLoader = (message = "") => {
    const spinner = ['|', '/', '-', '\\'];
@@ -23,18 +21,6 @@ export const logLoader = (message = "") => {
    }
 }
 
-export const exec = (command) => {
-   child_process.exec(command, (error, stdout, stderr) => {
-      if (error) {
-         console.error("Error:", error);
-         return;
-      }
-      console.log(stdout.toString());
-      console.error("stderr:", stderr);
-   });
-};
-
-
 export const execSync = (command, option = {}) => {
    try {
       const result = child_process.execSync(command, {
@@ -47,14 +33,3 @@ export const execSync = (command, option = {}) => {
       console.error(`Command failed: ${error.message}`);
    }
 };
-
-
-export const packageJson = () => {
-   try {
-      const data = fs.readFileSync('./package.json', 'utf8');
-      return JSON.parse(data);
-   } catch (error) {
-      console.error('Error reading package.json', error);
-   }
-}
-

@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { glob } from 'glob'
 import ts from 'typescript'
-import { execSync, logLoader } from '../helpers';
+import { execSync, logLoader } from '../helpers.js';
 
 const pack = async (args) => {
    args.outdir = 'pack'
