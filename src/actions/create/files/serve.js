@@ -1,11 +1,17 @@
 export default args => {
+  let ext = ".jsx"
+  switch (args.template) {
+    case "react with typescript":
+      ext = ".tsx"
+  }
+
   const content = `import React from 'react';
 import { createRoot } from 'react-dom/client';
 
-const App: React.FC  = () => {
+const App  = () => {
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Welcome to React Typescript with makepack CLI!</h1>
+    <div style={{fontFamily: 'vardana', textAlign: 'center', marginTop: '50px' }}>
+      <h1>Welcome to makepack CLI!</h1>
       <p>Edit <code>index.tsx</code> and save to reload.</p>
       <a
         href="https://reactjs.org"
@@ -18,11 +24,14 @@ const App: React.FC  = () => {
     </div>
   );
 }
-const root = createRoot(document.getElementById('root'));
-root.render(<App />);
+const rootEle = document.getElementById('root')
+if (rootEle) {
+  const root = createRoot(rootEle);
+  root.render(<App />);
+}
   `
   return {
     content,
-    filename: `${args.rootdir}/${args.entry}`
+    filename: `serve${ext}`
   }
 }

@@ -46,11 +46,11 @@ makepack serve [options]
 
 #### Options
 
-- `-p, --port <type>`  
-  _Port number_ (default is `3000`).
+- `-p, --port <number>`  
+  _Port number_ (optional) (default is `5000`).
   
-- `-e, --entry <type>`  
-  _Entry file_ (optional). The entry point for your application. Specify the main JavaScript/TypeScript file to start the server.
+- `-e, --root <file>`  
+  _Root file_ (optional) (default is `serve.jsx` or `serve.tsx`). The entry point for your application. Specify the main JavaScript/TypeScript file to start the server.
 
 #### Description
 
@@ -59,7 +59,7 @@ makepack serve [options]
 Example:
 
 ```bash
-makepack serve --port 4000 --entry src/index.ts
+makepack serve --port 4000 --root src/index.ts
 ```
 
 ---
@@ -76,7 +76,7 @@ makepack pack [options]
 
 #### Options
 
-- `-e, --entry <type>`  
+- `-e, --entry <file>`  
   _Entry file or directory_ (default is `src/**/*.{tsx,ts,js,jsx}`).  
   Specify the entry file or use a glob pattern to select the files to include in your library.
 
@@ -110,7 +110,7 @@ makepack create
 2. Start the server for development:
 
 ```bash
-makepack serve --port 4000 --entry src/index.ts
+makepack serve --port 4000 --root index.tsx
 ```
 
 3. Once you're ready to build and publish your library:

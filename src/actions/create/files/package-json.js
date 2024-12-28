@@ -17,14 +17,18 @@ export default (args) => {
       devDependencies["@types/react-dom"] = "^19.0.2"
    }
 
+   let main = args.entry.split('.')
+   main.pop()
+
    const json = {
       name: args.diraname,
       version: "1.0.0",
       description: "",
-      main: `${args.outdir}/${args.entry}`,
+      main: `./${main.join(".")}.js`,
       scripts: {
          "start": "makepack serve",
-         "build": "makepack build",
+         "pack": "makepack pack",
+         "publish:pack": "makepack pack -p",
       },
       dependencies,
       devDependencies,

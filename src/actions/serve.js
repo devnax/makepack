@@ -9,24 +9,23 @@ const app = express();
 
 const serve = async (args) => {
 
-   if (args.entry === undefined) {
-      const indexes = await glob('src/index.{ts,js,tsx,jsx}', {
+   if (args.root === undefined) {
+      const serveFile = await glob('serve.{ts,js,tsx,jsx}', {
          cwd: process.cwd()
       })
-      if (!indexes.length) {
-         let { entry } = await inquirer.prompt([{
+      if (!serveFile.length) {
+         let { root } = await inquirer.prompt([{
             type: 'input',
-            name: 'entry',
+            name: 'root',
             message: 'Enter the root file',
          }]);
-         entry = "src/" + entry
 
-         if (!fs.existsSync(path.join(process.cwd(), entry))) {
-            throw new Error(`invalid entry: ${entry}`);
+         if (!fs.existsSync(path.join(process.cwd(), root))) {
+            throw new Error(`invalid root: ${root}`);
          }
-         args.entry = entry;
+         args.root = root;
       } else {
-         args.entry = indexes[0];
+         args.root = serveFile[0];
       }
    }
 
@@ -39,7 +38,7 @@ const serve = async (args) => {
         </head>
         <body>
           <div id="root"></div>
-          <script type="module" src="${args.entry}"></script>
+          <script type="module" src="${args.root}"></script>
         </body>
       </html>
   `;

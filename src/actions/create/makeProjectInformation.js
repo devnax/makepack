@@ -14,7 +14,7 @@ const makeProjectInformation = async () => {
          message: 'Select a template',
          choices: ['typescript', 'javascript', 'react with typescript', 'react with javascript'],
          default: 'typeScript'
-      },
+      }
    ])
 
    if (projectDir.diraname !== cwdFolder) {
@@ -55,9 +55,8 @@ const makeProjectInformation = async () => {
    */
 
    return {
-      port: 3000,
+      // port: 3000,
       outdir: "pack",
-      rootdir: "src",
       ...projectDir,
       ...information
    }
