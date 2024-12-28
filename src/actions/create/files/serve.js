@@ -10,7 +10,7 @@ import { createRoot } from 'react-dom/client';
 
 const App  = () => {
   return (
-    <div style={{fontFamily: 'vardana', textAlign: 'center', marginTop: '50px' }}>
+    <div style={{fontFamily: 'monospace,math, sans-serif', textAlign: 'center', marginTop: '50px' }}>
       <h1>Welcome to makepack CLI!</h1>
       <p>Edit <code>index.tsx</code> and save to reload.</p>
       <a

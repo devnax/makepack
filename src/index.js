@@ -18,7 +18,7 @@ program
 program
    .command("serve")
    .option("-p, --port <number>", "Port number", "5000")
-   .option("-r, --root <file>", "root file", path.join(process.cwd(), "/serve"))
+   .option("-r, --root <file>", "root file")
    .description("Start the server")
    .action(serve);
 
