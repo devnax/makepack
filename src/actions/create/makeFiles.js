@@ -10,12 +10,14 @@ import projectTsx from "./files/project-tsx.js";
 
 import fs from "fs-extra"
 import path from "path"
+import readmeMd from "./files/readme.md.js";
 
 export default async (args) => {
    const files = [
       packageJson(args),
       gitignore(args),
       serve(args),
+      readmeMd(args)
    ];
 
    switch (args.template) {

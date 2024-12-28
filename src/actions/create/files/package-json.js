@@ -5,10 +5,11 @@ export default (args) => {
    }
 
    if (args.template.includes("react")) {
-      dependencies = {
-         "react": "^19.0.0",
-         "react-dom": "^19.0.0"
-      }
+      dependencies["react"] = "^19.0.0"
+      dependencies["react-dom"] = "^19.0.0"
+   } else {
+      devDependencies["react"] = "^19.0.0"
+      devDependencies["react-dom"] = "^19.0.0"
    }
 
    if (args.template.includes("typescript")) {
