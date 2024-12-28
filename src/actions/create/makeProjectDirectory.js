@@ -36,7 +36,7 @@ export default async () => {
 
    return {
       cwd: projectDir,
-      diraname: path.basename(projectDir),
+      dirname: projectDirName,
       isCurrentDir: projectDirName === cwdFolder
    }
 }

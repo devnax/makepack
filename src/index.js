@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import serve from "./actions/serve.js";
+import serve from "./actions/serve/index.js";
 import pack from "./actions/pack.js";
 import create from "./actions/create/index.js";
-import path from 'path'
 
 const program = new Command();
 

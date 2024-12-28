@@ -1,6 +1,6 @@
 {
   "name": "makepack",
-  "version": "1.0.8",
+  "version": "1.2.0",
   "type": "module",
   "description": "A CLI tool to create, build, and manage JavaScript, TypeScript, React, and React-TypeScript libraries for npm projects.",
   "categories": [
@@ -20,16 +20,18 @@
   },
   "homepage": "https://github.com/devnax/makepack#readme",
   "scripts": {},
-  "devDependencies": {},
   "dependencies": {
+    "chalk": "^5.4.1",
     "commander": "^12.1.0",
-    "inquirer": "^12.1.0",
     "esbuild": "^0.24.2",
     "express": "^4.21.1",
+    "figlet": "^1.8.0",
+    "figures": "^6.1.0",
     "fs-extra": "^11.2.0",
+    "glob": "^11.0.0",
+    "inquirer": "^12.1.0",
     "typescript": "^5.7.2",
-    "vite": "^6.0.2",
-    "glob": "^11.0.0"
+    "vite": "^6.0.2"
   },
   "keywords": [
     "CLI",
@@ -39,5 +41,9 @@
     "TypeScript",
     "React",
     "npm-package"
-  ]
+  ],
+  "devDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
 }

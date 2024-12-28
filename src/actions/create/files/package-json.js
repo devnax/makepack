@@ -21,7 +21,7 @@ export default (args) => {
    main.pop()
 
    const json = {
-      name: args.diraname,
+      name: args.dirname,
       version: "1.0.0",
       description: "",
       main: `./${main.join(".")}.js`,

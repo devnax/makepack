@@ -17,7 +17,7 @@ const makeProjectInformation = async () => {
       }
    ])
 
-   if (projectDir.diraname !== cwdFolder) {
+   if (projectDir.dirname !== cwdFolder) {
       fs.removeSync(projectDir.cwd)
       fs.mkdirSync(projectDir.cwd)
    }
@@ -46,7 +46,7 @@ const makeProjectInformation = async () => {
      port: 3000,
      outdir: "pack",
      cwd: 'C:\xampp\htdocs\makepack\asd',
-     diraname: 'asd',
+     dirname: 'asd',
      isCurrentDir: false,
      template: 'typescript',
      rootdir: 'src',

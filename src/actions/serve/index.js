@@ -4,6 +4,9 @@ import path from 'path'
 import { createServer as createViteServer } from 'vite';
 import express from 'express';
 import { glob } from 'glob'
+import logger from './loger.js'
+import chalk from 'chalk';
+import figlet from 'figlet';
 
 const app = express();
 
@@ -43,11 +46,20 @@ const serve = async (args) => {
       </html>
   `;
 
+   console.log(args.root);
+
    const vite = await createViteServer({
       root: process.cwd(),
       // plugins: [react()],
       server: {
-         middlewareMode: true
+         middlewareMode: true,
+      },
+      customLogger: {
+         info: (msg) => {
+            logger.info(msg)
+         },
+         warn: (msg) => logger.warning(msg),
+         error: (msg) => logger.error(msg),
       },
       appType: 'custom'
    });
@@ -66,11 +78,25 @@ const serve = async (args) => {
       }
    });
 
-   app.use('*', async (_req, res) => {
-      res.status(404).end("404 page not found");
+   let server = app.listen(args.port, () => {
+      figlet("Make Pack", function (err, data) {
+         if (err) {
+            console.log("Something went wrong...");
+            console.dir(err);
+            server.close(() => {
+               console.log('Server has been stopped.');
+            });
+            process.exit()
+         }
+         console.log(data);
+         logger.success(`Server is running on ${chalk.blue(chalk.underline(`http://localhost:${args.port}`))}`);
+      });
    });
 
-   app.listen(args.port, () => console.log(`http://localhost:${args.port}`));
+   app.use((err, req, res, next) => {
+      logger.error(`Unhandled Error: ${err.message}`);
+      res.status(500).send('Internal Server Error');
+   });
 }
 
 export default serve
