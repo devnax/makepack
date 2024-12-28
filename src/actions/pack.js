@@ -65,6 +65,7 @@ const pack = async (args) => {
    loader.stop()
 
    fs.copyFileSync(path.join(process.cwd(), '/package.json'), path.join(process.cwd(), args.outdir, `/package.json`))
+   fs.copyFileSync(path.join(process.cwd(), '/readme.md'), path.join(process.cwd(), args.outdir, `/readme.md`))
    console.log('✅ Production build generated successfully! The package is ready for deployment.');
 
    if (args.publish) {
