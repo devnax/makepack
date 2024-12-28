@@ -39,7 +39,10 @@ const makeProjectInformation = async () => {
          break;
    }
 
-   fs.mkdirSync(path.join(projectDir.cwd, information.rootdir))
+   // check if the root directory exists
+   if (!fs.existsSync(path.join(projectDir.cwd, information.rootdir))) {
+      fs.mkdirSync(path.join(projectDir.cwd, information.rootdir))
+   }
 
    /* 
    {

@@ -41,6 +41,21 @@ export default async (args) => {
    }
 
    for (let file of files) {
+      // check if the file exists
+      if (fs.existsSync(path.join(args.cwd, file.filename))) {
+         const { overwrite } = await inquirer.prompt([
+            {
+               type: "confirm",
+               name: 'overwrite',
+               message: `The file ${file.filename} already exists, do you want to overwrite it?`,
+               default: false
+            }
+         ])
+         if (!overwrite) {
+            continue
+         }
+      }
+
       fs.writeFileSync(path.join(args.cwd, file.filename), file.content)
    }
 }
