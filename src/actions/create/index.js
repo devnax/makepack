@@ -15,9 +15,9 @@ const create = async () => {
 
    loader.stop("Project setup complete!")
    if (projectInformation.isCurrentDir) {
-      console.log(`Run the development server: \n makepack serve\nEnjoy your new project! 😊`);
+      console.log(`Run the development server: \nnpm start\nEnjoy your new project! 😊`);
    } else {
-      console.log(`To start working with your project:\n1. Navigate to your project directory:\ncd ${projectInformation.dirname}\n2. Run the development server:\nmakepack serve\nEnjoy your new project! 😊`);
+      console.log(`To start working with your project:\n1. Navigate to your project directory:\ncd ${projectInformation.dirname}\n2. Run the development server:\nnpm start\nEnjoy your new project! 😊`);
    }
 
 

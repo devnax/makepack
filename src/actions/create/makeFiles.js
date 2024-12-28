@@ -4,7 +4,9 @@ import gitignore from "./files/gitignore.js";
 import serve from "./files/serve.js";
 import tsconfig from "./files/tsconfig.js";
 import projectJs from "./files/project-js.js";
+import projectJsx from "./files/project-jsx.js";
 import projectTs from "./files/project-ts.js";
+import projectTsx from "./files/project-tsx.js";
 
 import fs from "fs-extra"
 import path from "path"
@@ -18,12 +20,16 @@ export default async (args) => {
 
    switch (args.template) {
       case "typescript":
-      case "react with typescript":
          files.push(projectTs(args))
+         break
+      case "react with typescript":
+         files.push(projectTsx(args))
          break;
       case "javascript":
-      case "react with javascript":
          files.push(projectJs(args))
+         break
+      case "react with javascript":
+         files.push(projectJsx(args))
          break;
    }
 
