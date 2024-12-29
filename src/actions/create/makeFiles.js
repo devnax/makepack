@@ -48,8 +48,8 @@ export default async (args) => {
             {
                type: "confirm",
                name: 'overwrite',
-               message: `\nThe file ${file.filename} already exists, do you want to overwrite it?`,
-               default: false
+               message: `The file ${file.filename} already exists, do you want to overwrite it?`,
+               default: true
             }
          ])
          if (!overwrite) {

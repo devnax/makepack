@@ -4,7 +4,7 @@ import path from 'path'
 import { createServer as createViteServer } from 'vite';
 import express from 'express';
 import { glob } from 'glob'
-import logger from './loger.js'
+import { logger } from '../../helpers.js'
 import chalk from 'chalk';
 import figlet from 'figlet';
 
