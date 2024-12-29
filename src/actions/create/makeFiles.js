@@ -8,6 +8,7 @@ import projectJsx from "./files/project-jsx.js";
 import projectTs from "./files/project-ts.js";
 import projectTsx from "./files/project-tsx.js";
 
+import inquirer from 'inquirer'
 import fs from "fs-extra"
 import path from "path"
 import readmeMd from "./files/readme.md.js";
