@@ -48,12 +48,14 @@ export default async (args) => {
             {
                type: "confirm",
                name: 'overwrite',
-               message: `The file ${file.filename} already exists, do you want to overwrite it?`,
+               message: `\nThe file ${file.filename} already exists, do you want to overwrite it?`,
                default: false
             }
          ])
          if (!overwrite) {
             continue
+         } else {
+            fs.removeSync(path.join(args.cwd, file.filename))
          }
       }
 
