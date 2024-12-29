@@ -1,6 +1,8 @@
-# MakePack CLI Documentation
+<p align="center">
+  <a href="https://mui.com/core/" rel="noopener" target="_blank"><img width="120" src="https://api.mypiebd.com/uploads/2024/11/29/images/c31a5fc731a89c82fd0e846dd69a9936253385.png" alt="Material UI logo"></a>
+</p>
 
-## Overview
+<h1 align="center">Makepack</h1>
 
 **MakePack** is a command-line interface (CLI) tool that helps you to quickly set up, build, and manage JavaScript, TypeScript, React, and React-TypeScript libraries for use in npm projects. With just a few simple commands, you can generate your own libraries, start a development server, or build and publish your project to the npm repository.
 
@@ -121,12 +123,19 @@ makepack pack --entry src/**/*.{tsx,ts,js,jsx} --publish
 
 This will build your library and publish it to npm.
 
-## GitHub Repository
 
-For more details, open issues, or contribute to the project, visit the [MakePack GitHub Repository](https://github.com/devnax/makepack).
+## 🤝 Contributing
+
+Contributions are welcome! Please check out the [contribution guidelines](https://github.com/devnax/makepack).
 
 ---
 
-## License
+## 📄 License
 
-This project is licensed under the MIT License. See the LICENSE file for more information.
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+
+---
+
+## 📞 Support
+
+For help or suggestions, feel free to open an issue on [GitHub](https://github.com/devnax/makepack/issues) or contact us via [devnaxrul@gmail.com](mailto:devnaxrul@gmail.com).
