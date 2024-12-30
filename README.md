@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://mui.com/core/" rel="noopener" target="_blank"><img width="120" src="https://api.mypiebd.com/uploads/2024/11/29/images/c31a5fc731a89c82fd0e846dd69a9936253385.png" alt="Material UI logo"></a>
+  <a href="https://github.com/devnax/makepack" rel="noopener" target="_blank"><img  src="https://raw.githubusercontent.com/devnax/makepack/main/logo.png" alt="Makepack logo"></a>
 </p>
 
 <h1 align="center">Makepack</h1>
