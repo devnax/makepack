@@ -18,7 +18,7 @@ const pack = async (args) => {
    esbuild.buildSync({
       entryPoints: entries,
       outdir: path.join(process.cwd(), args.outdir),
-      minify: true,
+      // minify: true,
       sourcemap: true,
       format: "esm",
       platform: 'node',

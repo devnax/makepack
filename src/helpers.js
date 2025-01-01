@@ -29,6 +29,7 @@ export const execSync = (command, option = {}) => {
       result && console.log(result);
    } catch (error) {
       console.error(`Command failed: ${error.message}`);
+      process.exit(1);
    }
 };
 
