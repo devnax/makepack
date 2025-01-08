@@ -2,6 +2,7 @@ import child_process from 'child_process'
 import chalk from 'chalk';
 import figures from 'figures';
 import { pathToFileURL } from 'url';
+import path from 'path';
 
 
 export const logLoader = (message = "") => {
