@@ -4,14 +4,16 @@ import path from 'path'
 import { createServer as createViteServer } from 'vite';
 import express from 'express';
 import { glob } from 'glob'
-import { logger } from '../../helpers.js'
+import { logger, loadConfig } from '../../helpers.js'
 import chalk from 'chalk';
 import figlet from 'figlet';
+import react from '@vitejs/plugin-react'
 
 const app = express();
 
-const serve = async (args) => {
 
+
+const serve = async (args) => {
    if (args.root === undefined) {
       const serveFile = await glob('serve.{ts,js,tsx,jsx}', {
          cwd: process.cwd()
@@ -46,13 +48,15 @@ const serve = async (args) => {
       </html>
   `;
 
-   console.log(args.root);
+   let viteConfig = await loadConfig('vite.config.js') || {}
 
    const vite = await createViteServer({
+      ...viteConfig,
       root: process.cwd(),
-      // plugins: [react()],
+      plugins: [react(), ...(viteConfig.plugins || [])],
       server: {
          middlewareMode: true,
+         ...(viteConfig.server || {})
       },
       customLogger: {
          info: (msg) => {
@@ -60,6 +64,7 @@ const serve = async (args) => {
          },
          warn: (msg) => logger.warning(msg),
          error: (msg) => logger.error(msg),
+         ...(viteConfig.customLogger || {})
       },
       appType: 'custom'
    });

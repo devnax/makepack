@@ -6,7 +6,6 @@ const App = () => {
     <div style={{ fontFamily: 'monospace,math, sans-serif', textAlign: 'center', marginTop: '50px' }}>
       <h1>Welcome to makepack CLI!</h1>
       <p>Edit <code></code> and save to reload.</p>
-      as
       <a
         href="https://reactjs.org"
         target="_blank"

@@ -2,7 +2,7 @@
 
 import { Command } from "commander";
 import serve from "./actions/serve/index.js";
-import pack from "./actions/pack.js";
+import pack from "./actions/pack/index.js";
 import create from "./actions/create/index.js";
 
 const program = new Command();

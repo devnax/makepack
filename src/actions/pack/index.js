@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { glob } from 'glob'
 import ts from 'typescript'
-import { execSync, logLoader } from '../helpers.js';
+import { execSync, logLoader, loadConfig } from '../../helpers.js';
 
 const pack = async (args) => {
    args.outdir = 'pack'
@@ -14,24 +14,17 @@ const pack = async (args) => {
    const files = await glob('src/**/*.{tsx,ts,js,jsx}') || []
    const entries = files.map(entry => path.join(process.cwd(), entry))
    let loader = logLoader("Generating a production build for the package...")
-
+   const esbuildConfig = await loadConfig('esbuild.config.js') || {}
    esbuild.buildSync({
-      entryPoints: entries,
-      outdir: path.join(process.cwd(), args.outdir),
       // minify: true,
       sourcemap: true,
       format: "esm",
       platform: 'node',
       loader: { '.ts': 'ts' },
-      //       tsconfig: path.join(process.cwd(), 'tsconfig.json'),
-      //       tsconfigRaw: `{
-      //   "compilerOptions": {
-      //     "declaration": true,
-      //     "emitDeclarationOnly": true,
-      //     "jsx": "react",
-      //     "module": "esnext",
-      //   }
-      // }`
+      tsconfig: path.join(process.cwd(), 'tsconfig.json'),
+      ...esbuildConfig,
+      entryPoints: entries,
+      outdir: path.join(process.cwd(), args.outdir),
    })
    loader.stop()
    loader = logLoader("🔄 Generating TypeScript declarations...")

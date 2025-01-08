@@ -1,6 +1,8 @@
 import child_process from 'child_process'
 import chalk from 'chalk';
 import figures from 'figures';
+import { pathToFileURL } from 'url';
+
 
 export const logLoader = (message = "") => {
    const spinner = ['|', '/', '-', '\\'];
@@ -53,3 +55,13 @@ export const logger = {
    },
 };
 
+
+export const loadConfig = async (file) => {
+   const viteConfigPath = path.resolve(process.cwd(), file);
+   if (fs.existsSync(viteConfigPath)) {
+      try {
+         return await import(pathToFileURL(viteConfigPath).href);
+      } catch (error) {
+      }
+   }
+}

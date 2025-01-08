@@ -16,6 +16,12 @@ npm install -g makepack
 
 This will allow you to use the `makepack` command anywhere in your terminal.
 
+## Configuration Files
+
+**MakePack** supports loading configuration files for Vite and esbuild. If `vite.config.js` and `esbuild.config.js` exist in the root of the project, they will be automatically loaded when running the respective commands.
+
+
+
 ## Commands
 
 ### `create`
@@ -38,7 +44,7 @@ This command will guide you through the initial setup for your library.
 
 ### `serve`
 
-The `serve` command starts a development server for your library, providing you with a live-reload environment where you can test and iterate on your library in real-time.
+The `serve` command starts a development server for your library, providing you with a live-reload environment where you can test and iterate on your library in real-time. It will load `vite.config.js` if it exists in the root of the project.
 
 #### Usage
 
@@ -68,7 +74,7 @@ makepack serve --port 4000 --root src/index.ts
 
 ### `pack`
 
-The `pack` command is used to build your library and optionally publish it to the npm repository. This command compiles your code into a distributable format and prepares it for sharing with others.
+The `pack` command is used to build your library and optionally publish it to the npm repository. This command compiles your code into a distributable format and prepares it for sharing with others. It will load `esbuild.config.js` if it exists in the root of the project.
 
 #### Usage
 
