@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import figures from 'figures';
 import { pathToFileURL } from 'url';
 import path from 'path';
+import fs from 'fs-extra';
 
 
 export const logLoader = (message = "") => {
