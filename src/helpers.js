@@ -62,7 +62,8 @@ export const loadConfig = async (file) => {
    const viteConfigPath = path.resolve(process.cwd(), file);
    if (fs.existsSync(viteConfigPath)) {
       try {
-         return await import(pathToFileURL(viteConfigPath).href);
+         const c = await import(pathToFileURL(viteConfigPath).href)
+         return c.default || {}
       } catch (error) {
       }
    }

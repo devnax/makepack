@@ -15,13 +15,14 @@ const pack = async (args) => {
    const entries = files.map(entry => path.join(process.cwd(), entry))
    let loader = logLoader("Generating a production build for the package...")
    const esbuildConfig = await loadConfig('esbuild.config.js') || {}
+
    esbuild.buildSync({
       // minify: true,
       sourcemap: true,
       format: "esm",
       platform: 'node',
       loader: { '.ts': 'ts' },
-      tsconfig: path.join(process.cwd(), 'tsconfig.json'),
+      // tsconfig: path.join(process.cwd(), 'tsconfig.json'),
       ...esbuildConfig,
       entryPoints: entries,
       outdir: path.join(process.cwd(), args.outdir),
