@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../test/Button/variant.ts"],
-  "sourcesContent": ["const variants = ['primary', 'secondary', 'tertiary', 'quaternary'];\n\nexport default variants;"],
-  "mappings": "AAAA,IAAMA,EAAW,CAAC,UAAW,YAAa,WAAY,YAAY,EAE3DC,EAAQD",
-  "names": ["variants", "variant_default"]
-}

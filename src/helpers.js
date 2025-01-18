@@ -59,10 +59,10 @@ export const logger = {
 
 
 export const loadConfig = async (file) => {
-   const viteConfigPath = path.resolve(process.cwd(), file);
-   if (fs.existsSync(viteConfigPath)) {
+   const config = path.resolve(process.cwd(), file);
+   if (fs.existsSync(config)) {
       try {
-         const c = await import(pathToFileURL(viteConfigPath).href)
+         const c = await import(pathToFileURL(config).href)
          return c.default || {}
       } catch (error) {
       }

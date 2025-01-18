@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../test/Button/variants.ts"],
+  "sourcesContent": ["export const variants = [\"primary\", \"secondary\", \"tertiary\"] "],
+  "mappings": "AAAO,MAAM,WAAW,CAAC,WAAW,aAAa,UAAU;",
+  "names": []
+}

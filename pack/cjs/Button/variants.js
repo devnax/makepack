@@ -15,15 +15,10 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var Button_exports = {};
-__export(Button_exports, {
-  default: () => Button_default
+var variants_exports = {};
+__export(variants_exports, {
+  variants: () => variants
 });
-module.exports = __toCommonJS(Button_exports);
-var import_jsx_runtime = require("react/jsx-runtime");
-var import_variants = require("./variants");
-const Button = () => {
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: import_variants.variants[0] });
-};
-var Button_default = Button;
-//# sourceMappingURL=index.js.map
+module.exports = __toCommonJS(variants_exports);
+const variants = ["primary", "secondary", "tertiary"];
+//# sourceMappingURL=variants.js.map

@@ -19,11 +19,11 @@ const pack = async (args) => {
 
    function build(format) {
       return esbuild.build({
-         bundle: true,
-         target: ['esnext'],
+         // bundle: true,
+         // target: ['esnext'],
          // splitting: format === 'esm', // Enable code splitting only for ESM
-         sourcemap: true,
          minify: true,
+         sourcemap: true,
          jsx: 'automatic',
          loader: {
             '.ts': 'ts',
