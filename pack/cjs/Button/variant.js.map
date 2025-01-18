@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../test/Button/variant.ts"],
+  "sourcesContent": ["const variants = ['primary', 'secondary', 'tertiary', 'quaternary'];\n\nexport default variants;"],
+  "mappings": "4ZAAA,IAAAA,EAAA,GAAAC,EAAAD,EAAA,aAAAE,IAAA,eAAAC,EAAAH,GAAA,IAAMI,EAAW,CAAC,UAAW,YAAa,WAAY,YAAY,EAE3DF,EAAQE",
+  "names": ["variant_exports", "__export", "variant_default", "__toCommonJS", "variants"]
+}

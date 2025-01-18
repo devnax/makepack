@@ -9,30 +9,44 @@ const pack = async (args) => {
    args.outdir = 'pack'
    try {
       fs.removeSync(path.join(process.cwd(), args.outdir));
+      fs.mkdirSync(path.join(process.cwd(), args.outdir));
    } catch (err) { }
 
    const files = await glob('src/**/*.{tsx,ts,js,jsx}') || []
-   const entries = files.map(entry => path.join(process.cwd(), entry))
+   const entryPoints = files.map(entry => path.join(process.cwd(), entry))
    let loader = logLoader("Generating a production build for the package...")
    const esbuildConfig = await loadConfig('esbuild.config.js') || {}
 
-   esbuild.buildSync({
-      // minify: true,
-      sourcemap: true,
-      format: "esm",
-      platform: 'node',
-      loader: { '.ts': 'ts' },
-      // tsconfig: path.join(process.cwd(), 'tsconfig.json'),
-      ...esbuildConfig,
-      entryPoints: entries,
-      outdir: path.join(process.cwd(), args.outdir),
-   })
+   function build(format) {
+      return esbuild.build({
+         bundle: true,
+         target: ['esnext'],
+         // splitting: format === 'esm', // Enable code splitting only for ESM
+         sourcemap: true,
+         minify: true,
+         jsx: 'automatic',
+         loader: {
+            '.ts': 'ts',
+            '.tsx': 'tsx'
+         },
+         ...esbuildConfig,
+         format: format, // 'esm' or 'cjs'
+         entryPoints,
+         outdir: path.join(process.cwd(), args.outdir, format),
+      });
+   }
+
+   Promise.all([
+      build('esm'),
+      build('cjs'),
+   ]).catch(() => process.exit(1));
+
    loader.stop()
    loader = logLoader("🔄 Generating TypeScript declarations...")
    const options = {
       declaration: true,
       emitDeclarationOnly: true,
-      outDir: path.join(process.cwd(), args.outdir),
+      outDir: path.join(process.cwd(), args.outdir, 'types'),
       strict: true,
       allowJs: true,
       jsx: ts.JsxEmit.React,
@@ -58,7 +72,29 @@ const pack = async (args) => {
    }
    loader.stop()
 
-   fs.copyFileSync(path.join(process.cwd(), '/package.json'), path.join(process.cwd(), args.outdir, `/package.json`))
+   let packageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), '/package.json'), 'utf8'));
+
+   let name = packageJson.name
+   let version = packageJson.version
+   let description = packageJson.description
+   delete packageJson.name
+   delete packageJson.version
+   delete packageJson.description
+
+   packageJson = {
+      name,
+      version,
+      description,
+      main: './cjs/index.js',
+      module: './esm/index.js',
+      types: './types/index.d.ts',
+      ...packageJson,
+   }
+
+   delete packageJson.type
+
+   fs.writeFileSync(path.join(process.cwd(), args.outdir, '/package.json'), JSON.stringify(packageJson, null, 2));
+
    fs.copyFileSync(path.join(process.cwd(), '/readme.md'), path.join(process.cwd(), args.outdir, `/readme.md`))
    console.log('✅ Production build generated successfully! The package is ready for deployment.');
 
