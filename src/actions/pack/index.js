@@ -17,8 +17,8 @@ const pack = async (args) => {
    let loader = logLoader("Generating a production build for the package...")
    const esbuildConfig = await loadConfig('esbuild.config.js') || {}
 
-   function build(format) {
-      return esbuild.build({
+   async function build(format) {
+      return esbuild.buildSync({
          // bundle: true,
          // target: ['esnext'],
          // splitting: format === 'esm', // Enable code splitting only for ESM
@@ -36,10 +36,8 @@ const pack = async (args) => {
       });
    }
 
-   Promise.all([
-      build('esm'),
-      build('cjs'),
-   ]).catch(() => process.exit(1));
+   await build('esm')
+   await build('cjs')
 
    loader.stop()
    loader = logLoader("🔄 Generating TypeScript declarations...")
