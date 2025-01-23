@@ -34,6 +34,23 @@ export default (args) => {
       dependencies,
       devDependencies,
       keywords: [],
+      exports: {
+         ".": {
+            "types": "./types/index.d.ts",
+            "import": "./esm/index.js",
+            "require": "./cjs/index.js"
+         },
+         "./*": {
+            "types": "./types/*.d.ts",
+            "import": "./esm/*.js",
+            "require": "./cjs/*.js"
+         },
+         "./types/*": "./types/*.d.ts",
+         "./esm/*": "./esm/*.js",
+         "./esm/*.js": "./esm/*.js",
+         "./cjs/*": "./cjs/*.js",
+         "./cjs/*.js": "./cjs/*.js"
+      }
    }
 
    return {

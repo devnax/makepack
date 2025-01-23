@@ -18,9 +18,29 @@ This will allow you to use the `makepack` command anywhere in your terminal.
 
 ## Configuration Files
 
-**MakePack** supports loading configuration files for Vite and esbuild. If `vite.config.js` and `esbuild.config.js` exist in the root of the project, they will be automatically loaded when running the respective commands.
+Previously, the project used separate configuration files for Vite and esbuild:
+- `vite.config.js`
+- `esbuild.config.js`
 
+These files have been removed and replaced with a single configuration file: `makepack.js`.
 
+## makepack.js
+
+The `makepack.js` file exports a function that takes the previous configuration (`prevConfig`) and returns a new configuration (`newConfig`). This allows you to configure both esbuild and Vite in one place.
+
+### Example Usage
+
+```javascript
+// filepath: /Volumes/Work Space/makepack/makepack.js
+module.exports = function(prevConfig) {
+    const newConfig = {
+        // ...your new configuration here...
+    };
+    return newConfig;
+};
+```
+
+This approach simplifies the configuration process by consolidating it into a single file.
 
 ## Commands
 
