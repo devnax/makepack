@@ -4,6 +4,8 @@ import figures from 'figures';
 import { pathToFileURL } from 'url';
 import path from 'path';
 import fs from 'fs-extra';
+import react from '@vitejs/plugin-react'
+import ts from 'typescript'
 
 
 export const logLoader = (message = "") => {
@@ -58,13 +60,63 @@ export const logger = {
 };
 
 
-export const loadConfig = async (file) => {
-   const config = path.resolve(process.cwd(), file);
-   if (fs.existsSync(config)) {
-      try {
-         const c = await import(pathToFileURL(config).href)
-         return c.default || {}
-      } catch (error) {
+export const loadConfig = async (args) => {
+   const makepack = path.resolve(process.cwd(), "makepack.js");
+   let esbuild = {
+      minify: true,
+      sourcemap: true,
+      jsx: 'automatic',
+      loader: {
+         '.ts': 'ts',
+         '.tsx': 'tsx'
+      },
+   }
+
+   const defaultConfig = {
+      pack: {
+         tsconfig: {
+            declaration: true,
+            emitDeclarationOnly: true,
+            outDir: path.join(process.cwd(), args.outdir || "pack", 'types'),
+            strict: true,
+            allowJs: true,
+            jsx: ts.JsxEmit.React,
+            esModuleInterop: true,
+         },
+         esm: esbuild,
+         cjs: esbuild,
+      },
+      serve: {
+         express: () => { },
+         vite: {
+            root: process.cwd(),
+            plugins: [react()],
+            server: {
+               middlewareMode: true,
+            },
+            customLogger: {
+               info: (msg) => {
+                  logger.info(msg)
+               },
+               warn: (msg) => logger.warning(msg),
+               error: (msg) => logger.error(msg),
+            },
+            appType: 'custom'
+         }
       }
    }
+
+   if (fs.existsSync(makepack)) {
+      try {
+         const c = await import(pathToFileURL(makepack).href)
+         const configFn = c.default
+         if (typeof configFn === 'function') {
+            return configFn(defaultConfig)
+         }
+      } catch (error) {
+         console.log(error);
+
+      }
+   }
+   return defaultConfig
 }

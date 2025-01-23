@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../test/index.ts"],
-  "sourcesContent": ["export { default as Button } from './Button'"],
-  "mappings": "AAAA,SAAoB,WAAXA,gBAAyB;",
-  "names": ["default"]
-}

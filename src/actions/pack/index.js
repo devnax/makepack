@@ -15,60 +15,46 @@ const pack = async (args) => {
    const files = await glob('src/**/*.{tsx,ts,js,jsx}') || []
    const entryPoints = files.map(entry => path.join(process.cwd(), entry))
    let loader = logLoader("Generating a production build for the package...")
-   const esbuildConfig = await loadConfig('esbuild.config.js') || {}
+   const config = await loadConfig(args)
+   const packConfig = config.pack || {}
+   const esmConfig = packConfig?.esm
+   const cjsConfig = packConfig?.cjs
+   const tsConfig = packConfig?.tsconfig
 
    async function build(format) {
       return esbuild.buildSync({
-         // bundle: true,
-         // target: ['esnext'],
-         // splitting: format === 'esm', // Enable code splitting only for ESM
-         minify: true,
-         sourcemap: true,
-         jsx: 'automatic',
-         loader: {
-            '.ts': 'ts',
-            '.tsx': 'tsx'
-         },
-         ...esbuildConfig,
-         format: format, // 'esm' or 'cjs'
+         ...(format === 'esm' ? esmConfig : cjsConfig),
+         format: format,
          entryPoints,
          outdir: path.join(process.cwd(), args.outdir, format),
       });
    }
 
-   await build('esm')
-   await build('cjs')
+   esmConfig && await build('esm')
+   cjsConfig && await build('cjs')
 
    loader.stop()
-   loader = logLoader("🔄 Generating TypeScript declarations...")
-   const options = {
-      declaration: true,
-      emitDeclarationOnly: true,
-      outDir: path.join(process.cwd(), args.outdir, 'types'),
-      strict: true,
-      allowJs: true,
-      jsx: ts.JsxEmit.React,
-      esModuleInterop: true,
-   };
+   if (tsConfig) {
+      loader = logLoader("🔄 Generating TypeScript declarations...")
+      const program = ts.createProgram(files, tsConfig);
+      const emitResult = program.emit();
+      const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
 
-   const program = ts.createProgram(files, options);
-   const emitResult = program.emit();
-   const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
-
-   if (diagnostics.length > 0) {
-      diagnostics.forEach(diagnostic => {
-         const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-         if (diagnostic.file) {
-            const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-            console.error(`Error at ${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
-         } else {
-            console.error(`Error: ${message}`);
-         }
-      });
-   } else {
-      console.log('✅ TypeScript declaration files generated successfully!');
+      if (diagnostics.length > 0) {
+         diagnostics.forEach(diagnostic => {
+            const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+            if (diagnostic.file) {
+               const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+               console.error(`Error at ${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
+            } else {
+               console.error(`Error: ${message}`);
+            }
+         });
+      } else {
+         console.log('✅ TypeScript declaration files generated successfully!');
+      }
+      loader.stop()
    }
-   loader.stop()
 
    let packageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), '/package.json'), 'utf8'));
 
@@ -104,8 +90,6 @@ const pack = async (args) => {
    } else {
       console.log(`To publish your package:\n1. Navigate to the ${args.outdir} directory:\ncd ./${args.outdir}\n2. Publish the package to npm:\nnpm publish\nYour package is ready to share with the world! 🚀`);
    }
-
-
 }
 
 export default pack

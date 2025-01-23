@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../test/Button/index.tsx"],
-  "sourcesContent": ["import React from 'react'\nimport { variants } from './variants'\nconst Button = () => {\n   return (\n      <div>{variants[0]}</div>\n   )\n}\n\nexport default Button"],
-  "mappings": "AAIM;AAHN,SAAS,gBAAgB;AACzB,MAAM,SAAS,MAAM;AAClB,SACG,oBAAC,SAAK,mBAAS,CAAC,GAAE;AAExB;AAEA,IAAO,iBAAQ;",
-  "names": []
-}

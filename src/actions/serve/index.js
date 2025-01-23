@@ -7,7 +7,6 @@ import { glob } from 'glob'
 import { logger, loadConfig } from '../../helpers.js'
 import chalk from 'chalk';
 import figlet from 'figlet';
-import react from '@vitejs/plugin-react'
 
 const app = express();
 
@@ -34,6 +33,7 @@ const serve = async (args) => {
       }
    }
 
+
    let template = `
       <!doctype html>
       <html lang="en">
@@ -48,29 +48,19 @@ const serve = async (args) => {
       </html>
   `;
 
-   let viteConfig = await loadConfig('vite.config.js') || {}
+   let config = await loadConfig(args)
+   let serveConfig = config.serve || {}
+   let viteConfig = serveConfig.vite || {}
+   let express = serveConfig.express
 
-   const vite = await createViteServer({
-      ...viteConfig,
-      root: process.cwd(),
-      plugins: [react(), ...(viteConfig.plugins || [])],
-      server: {
-         middlewareMode: true,
-         ...(viteConfig.server || {})
-      },
-      customLogger: {
-         info: (msg) => {
-            logger.info(msg)
-         },
-         warn: (msg) => logger.warning(msg),
-         error: (msg) => logger.error(msg),
-         ...(viteConfig.customLogger || {})
-      },
-      appType: 'custom'
-   });
-
+   const vite = await createViteServer(viteConfig);
    app.use(vite.middlewares);
-   app.get('/', async (req, res, next) => {
+
+   if (express) {
+      express(app)
+   }
+
+   app.get('*', async (req, res, next) => {
       const url = req.originalUrl;
       try {
          template = await vite.transformIndexHtml(url, template);
