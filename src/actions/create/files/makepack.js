@@ -1,4 +1,4 @@
-export default (args) => {
+export default async (args) => {
    const makepack = {
       "template": `${args.template}`,
       "serve": {

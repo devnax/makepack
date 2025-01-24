@@ -1,24 +1,6 @@
-export default async (args) => {
-  let ext = args.template === 'react with typescript' ? ".tsx" : ".jsx"
-  let _import = ''
-  let _code = ''
-
-  switch (args.template) {
-    case "typescript":
-    case "javascript":
-      _import = `import add from './${args.rootdir}'`
-      _code = `<code>{add(5,5)}</code>`
-      break
-    case "react with typescript":
-    case "react with javascript":
-      _import = `import Count from './${args.rootdir}'`
-      _code = `<Count />`
-      break;
-  }
-
-  const content = `import React from 'react';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
-${_import}
+import add from './src'
 
 const App  = () => {
   return (
@@ -34,7 +16,7 @@ const App  = () => {
         Learn React
       </a>
       <div style={{marginTop: "50px"}}>
-        ${_code}
+        <code>{add(5,5)}</code>
       </div>
     </div>
   );
@@ -44,9 +26,4 @@ if (rootEle) {
   const root = createRoot(rootEle);
   root.render(<App />);
 }
-  `
-  return {
-    content,
-    filename: `serve${ext}`
-  }
-}
+  

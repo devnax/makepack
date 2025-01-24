@@ -1,4 +1,4 @@
-export default args => {
+export default async (args) => {
    const content = {
       "compilerOptions": {
          "target": "es5",

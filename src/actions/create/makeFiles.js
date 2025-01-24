@@ -15,30 +15,30 @@ import readmeMd from "./files/readme.md.js";
 
 export default async (args) => {
    const files = [
-      packageJson(args),
-      gitignore(args),
-      serve(args),
-      readmeMd(args)
+      await packageJson(args),
+      await gitignore(args),
+      await serve(args),
+      await readmeMd(args)
    ];
 
    switch (args.template) {
       case "typescript":
-         files.push(projectTs(args))
+         files.push(await projectTs(args))
          break
       case "react with typescript":
-         files.push(projectTsx(args))
+         files.push(await projectTsx(args))
          break;
       case "javascript":
-         files.push(projectJs(args))
+         files.push(await projectJs(args))
          break
       case "react with javascript":
-         files.push(projectJsx(args))
+         files.push(await projectJsx(args))
          break;
    }
 
    // push ts config
    if (args.template.includes("typescript")) {
-      files.push(tsconfig(args))
+      files.push(await tsconfig(args))
    }
 
    for (let file of files) {

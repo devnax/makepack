@@ -1,4 +1,4 @@
-export default (args) => {
+export default async (args) => {
   const content = `import React, { useState } from 'react';
 
 const Count = () => {

@@ -1,15 +1,12 @@
-export default (args) => {
+import { loadConfig } from "../../../helpers.js"
+
+export default async (args) => {
+   const config = await loadConfig()
    let dependencies = {}
    let devDependencies = {
-      "makepack": "latest"
-   }
-
-   if (args.template.includes("react")) {
-      dependencies["react"] = "^19.0.0"
-      dependencies["react-dom"] = "^19.0.0"
-   } else {
-      devDependencies["react"] = "^19.0.0"
-      devDependencies["react-dom"] = "^19.0.0"
+      "makepack": "latest",
+      "react": "^19.0.0",
+      "react-dom": "^19.0.0"
    }
 
    if (args.template.includes("typescript")) {
@@ -24,33 +21,32 @@ export default (args) => {
    const json = {
       name: args.dirname,
       version: "1.0.0",
+      main: `./${config.build.outdir}/cjs/index.js`,
+      module: `./${config.build.outdir}/index.js`,
+      types: `./${config.build.outdir}/index.d.ts`,
       description: "",
-      main: `./${main.join(".")}.js`,
-      scripts: {
-         "start": "makepack serve",
-         "pack": "makepack pack",
-         "publish:pack": "makepack pack -p",
-      },
-      dependencies,
-      devDependencies,
       keywords: [],
+      files: [
+         config.build.outdir
+      ],
       exports: {
          ".": {
-            "types": "./types/index.d.ts",
-            "import": "./esm/index.js",
-            "require": "./cjs/index.js"
+            "types": `./${config.build.outdir}/index.d.ts`,
+            "import": `./${config.build.outdir}/index.js`,
+            "require": `./${config.build.outdir}/cjs/index.js`
          },
          "./*": {
-            "types": "./types/*.d.ts",
-            "import": "./esm/*.js",
-            "require": "./cjs/*.js"
-         },
-         "./types/*": "./types/*.d.ts",
-         "./esm/*": "./esm/*.js",
-         "./esm/*.js": "./esm/*.js",
-         "./cjs/*": "./cjs/*.js",
-         "./cjs/*.js": "./cjs/*.js"
-      }
+            "import": `./${config.build.outdir}/*.js`,
+            "require": `./${config.build.outdir}/cjs/*.js`
+         }
+      },
+      scripts: {
+         "start": "makepack serve",
+         "build": "makepack build",
+         "prepare": "npm run build",
+      },
+      dependencies,
+      devDependencies
    }
 
    return {

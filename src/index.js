@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import serve from "./actions/serve/index.js";
-import pack from "./actions/pack/index.js";
+import start from "./actions/start/index.js";
+import build from "./actions/build/index.js";
 import create from "./actions/create/index.js";
 
 const program = new Command();
 
-program.name("Make Pack").description("Usages");
+program.name("Make build").description("Usages");
 
 program
    .command("create")
@@ -15,16 +15,16 @@ program
    .action(create);
 
 program
-   .command("serve")
-   .option("-p, --port <number>", "Port number", "5000")
-   .option("-r, --root <file>", "root file")
+   .command("start")
+   // .option("-p, --port <number>", "Port number", "5000")
+   // .option("-r, --root <file>", "root file")
    .description("Start the server")
-   .action(serve);
+   .action(start);
 
 program
-   .command("pack")
-   .option("-e, --entry <file>", "Entry file or directory (you can use a glob pattern)", "src/**/*.{tsx,ts,js,jsx}")
-   .option("-p, --publish", "Publish the project to the npm repository", false)
+   .command("build")
+   // .option("-e, --entry <file>", "Entry file or directory (you can use a glob pattern)", "src/**/*.{tsx,ts,js,jsx}")
+   // .option("-p, --publish", "Publish the project to the npm repository", false)
    .description("Build the project and optionally publish it to the npm repository")
-   .action(pack);
+   .action(build);
 program.parse();

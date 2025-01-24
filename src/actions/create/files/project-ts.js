@@ -1,4 +1,4 @@
-export default args => {
+export default async (args) => {
   const content = `
 function add(a: number, b: number): number {
   return a + b;

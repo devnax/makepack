@@ -60,10 +60,9 @@ export const logger = {
 };
 
 
-export const loadConfig = async (args) => {
+export const loadConfig = async () => {
    const makepack = path.resolve(process.cwd(), "makepack.js");
    let esbuild = {
-      minify: true,
       sourcemap: true,
       jsx: 'automatic',
       loader: {
@@ -73,11 +72,12 @@ export const loadConfig = async (args) => {
    }
 
    const defaultConfig = {
-      pack: {
+      build: {
+         outdir: "dist",
          tsconfig: {
             declaration: true,
             emitDeclarationOnly: true,
-            outDir: path.join(process.cwd(), args.outdir || "pack", 'types'),
+            // outDir: path.join(process.cwd(), args.outdir || "build", 'types'),
             strict: true,
             allowJs: true,
             jsx: ts.JsxEmit.React,

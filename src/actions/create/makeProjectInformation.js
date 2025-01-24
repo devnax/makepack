@@ -39,27 +39,11 @@ const makeProjectInformation = async () => {
          break;
    }
 
-   // check if the root directory exists
    if (!fs.existsSync(path.join(projectDir.cwd, information.rootdir))) {
       fs.mkdirSync(path.join(projectDir.cwd, information.rootdir))
    }
 
-   /* 
-   {
-     port: 3000,
-     outdir: "pack",
-     cwd: 'C:\xampp\htdocs\makepack\asd',
-     dirname: 'asd',
-     isCurrentDir: false,
-     template: 'typescript',
-     rootdir: 'src',
-     entry: 'index'
-   }
-   */
-
    return {
-      // port: 3000,
-      outdir: "pack",
       ...projectDir,
       ...information
    }

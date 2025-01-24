@@ -1,4 +1,4 @@
-import { execSync, logLoader, logger } from "../../helpers.js"
+import { execSync, logger } from "../../helpers.js"
 import makeProjectInformation from "./makeProjectInformation.js"
 import makeFiles from "./makeFiles.js"
 import figlet from 'figlet'
@@ -20,7 +20,7 @@ const create = async () => {
       console.log(`To start working with your project:\nNavigate to your project directory:\n${logger.info("", "cd " + info.dirname, false)} and Run the development server:\n${logger.info("", "npm start", false)}\nEnjoy your new project! 😊`);
    }
 
-   figlet("Make Pack CLI", function (err, data) {
+   figlet("Make build CLI", function (err, data) {
       if (!err) {
          console.log(data);
       }

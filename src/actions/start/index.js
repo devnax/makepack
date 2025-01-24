@@ -74,7 +74,7 @@ const serve = async (args) => {
    });
 
    let server = app.listen(args.port, () => {
-      figlet("Make Pack", function (err, data) {
+      figlet("Make build", function (err, data) {
          if (err) {
             console.log("Something went wrong...");
             console.dir(err);
