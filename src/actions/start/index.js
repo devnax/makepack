@@ -10,8 +10,6 @@ import figlet from 'figlet';
 
 const app = express();
 
-
-
 const serve = async (args) => {
    if (args.root === undefined) {
       const serveFile = await glob('serve.{ts,js,tsx,jsx}', {

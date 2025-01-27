@@ -1,20 +1,18 @@
 import { loadConfig } from "../../../helpers.js"
 
-export default async (info) => {
+export default async (args) => {
    const config = await loadConfig()
    let dependencies = {}
    let devDependencies = {
       "makepack": "latest",
       "react": "^19.0.0",
-      "react-dom": "^19.0.0",
-      "express": "latest"
+      "react-dom": "^19.0.0"
    }
 
    if (args.template.includes("typescript")) {
       devDependencies["typescript"] = "^4.4.2"
       devDependencies["@types/react"] = "^19.0.2"
       devDependencies["@types/react-dom"] = "^19.0.2"
-      devDependencies["@types/express"] = "latest"
    }
 
    let main = args.entry.split('.')
@@ -28,6 +26,9 @@ export default async (info) => {
       types: `./${config.build.outdir}/index.d.ts`,
       description: "",
       keywords: [],
+      files: [
+         config.build.outdir
+      ],
       exports: {
          ".": {
             "types": `./${config.build.outdir}/index.d.ts`,

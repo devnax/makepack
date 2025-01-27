@@ -1,0 +1,8 @@
+{
+   "name": "asd",
+   "version": "1.0.0",
+   "main": "serve.ts",
+   "scripts": {
+      "start": "node serve.ts"
+   }
+}
