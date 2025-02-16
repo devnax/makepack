@@ -1,116 +1,90 @@
 import esbuild from 'esbuild'
 import fs from 'fs-extra'
 import path from 'path'
+import chalk from 'chalk'
+import ora from 'ora'
 import { glob } from 'glob'
 import ts from 'typescript'
-import { execSync, logLoader, loadConfig } from '../../helpers.js'
+import { execSync, logLoader } from '../../helpers.js'
+import makapeckConfig from '../../makapeck-config.js'
 
 const build = async (args) => {
 
-   const config = await loadConfig()
-   const buildConfig = config.build
-   if (!buildConfig || !buildConfig.outdir) process.exit("Invalid configuration")
-   const esmConfig = buildConfig?.esm
-   const cjsConfig = buildConfig?.cjs
-   const tsConfig = buildConfig?.tsconfig
-   const outdir = buildConfig.outdir
+   const spinner = ora("Generating a production build for the package...").start();
 
    try {
-      fs.removeSync(path.join(process.cwd(), outdir));
-      fs.mkdirSync(path.join(process.cwd(), outdir));
-   } catch (err) { }
+      const { build } = await makapeckConfig()
+      const configs = build.configs
+      if (!configs || !configs.length) process.exit("Invalid configuration");
+      const outdir = build.outdir
 
-   const files = await glob('test/**/*.{tsx,ts,js,jsx}') || []
-   const entryPoints = files.map(entry => path.join(process.cwd(), entry))
-   let loader = logLoader("Generating a production build for the buildage...")
+      try {
+         fs.removeSync(path.join(process.cwd(), outdir));
+         fs.mkdirSync(path.join(process.cwd(), outdir));
+      } catch (err) { }
 
-   async function build(format) {
-      let conf = format === 'esm' ? esmConfig : cjsConfig
-      return esbuild.buildSync({
-         ...conf,
-         format: format,
-         entryPoints,
-         outdir: path.join(process.cwd(), outdir, format === "esm" ? '' : 'cjs')
-      });
-   }
-
-   esmConfig && await build('esm')
-   cjsConfig && await build('cjs')
-
-   loader.stop()
-   if (tsConfig) {
-      let conf = {
-         ...tsConfig,
-         outDir: path.join(process.cwd(), outdir)
-      }
-      loader = logLoader("🔄 Generating TypeScript declarations...")
-      const program = ts.createProgram(files, conf);
-      const emitResult = program.emit();
-      const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
-
-      if (diagnostics.length > 0) {
-         diagnostics.forEach(diagnostic => {
-            const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-            if (diagnostic.file) {
-               const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-               console.error(`Error at ${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
-            } else {
-               console.error(`Error: ${message}`);
-            }
+      for (let ebconfig of configs) {
+         const files = await glob(ebconfig.entryPoints) || []
+         const entryPoints = files.map(entry => path.join(process.cwd(), entry))
+         esbuild.buildSync({
+            ...ebconfig,
+            entryPoints,
+            outdir: path.join(process.cwd(), outdir, ebconfig.outdir || ''),
          });
-      } else {
-         console.log('✅ TypeScript declaration files generated successfully!');
       }
-      loader.stop()
-   }
 
-   let buildageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), '/buildage.json'), 'utf8'));
-
-   let name = buildageJson.name
-   let version = buildageJson.version
-   let description = buildageJson.description
-   delete buildageJson.name
-   delete buildageJson.version
-   delete buildageJson.description
-
-   buildageJson = {
-      name,
-      version,
-      description,
-      main: './cjs/index.js',
-      module: './index.js',
-      types: './index.d.ts',
-      files: [
-         outdir
-      ],
-      exports: {
-         ".": {
-            "types": "./index.d.ts",
-            "import": "./index.js",
-            "require": "./cjs/index.js"
-         },
-         "./*": {
-            "import": "./*.js",
-            "require": "./cjs/*.js"
+      if (build.types) {
+         let tsconfig = {
+            outDir: path.join(process.cwd(), outdir),
+            declaration: true,
+            emitDeclarationOnly: true,
+            strict: true,
+            allowJs: true,
+            jsx: ts.JsxEmit.React,
+            esModuleInterop: true,
          }
-      },
-      ...buildageJson,
-   }
+         spinner.text = "Generating TypeScript declarations..."
+         const files = await glob("test/**/*.{tsx,ts,js,jsx}") || []
+         const program = ts.createProgram(files, tsconfig);
+         const emitResult = program.emit();
+         const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
 
-   delete buildageJson.type
+         if (diagnostics.length > 0) {
+            diagnostics.forEach(diagnostic => {
+               const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+               if (diagnostic.file) {
+                  const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+                  spinner.fail(`Error at ${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
+               } else {
+                  spinner.fail(`Error: ${message}`);
+               }
+            });
+         } else {
+            spinner.succeed("TypeScript declaration files generated successfully!")
+         }
+      }
 
-   fs.writeFileSync(path.join(process.cwd(), outdir, '/buildage.json'), JSON.stringify(buildageJson, null, 2));
+      spinner.text = "Copying package.json and readme.md files..."
+      let packageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), '/package.json'), 'utf8'));
+      const formatPackageJson = build.formatPackageJson || ((p) => p)
+      packageJson = formatPackageJson(packageJson)
 
-   fs.copyFileSync(path.join(process.cwd(), '/readme.md'), path.join(process.cwd(), outdir, `/readme.md`))
-   console.log('✅ Production build generated successfully! The buildage is ready for deployment.');
+      fs.writeFileSync(path.join(process.cwd(), outdir, '/package.json'), JSON.stringify(packageJson, null, 2));
+      fs.copyFileSync(path.join(process.cwd(), '/readme.md'), path.join(process.cwd(), outdir, `/readme.md`))
+      spinner.succeed('Production build generated successfully! The package is ready for deployment.')
 
-   if (args.publish) {
-      console.log("Publishing the production build to the npm repository...")
-      execSync(`npm publish`, {
-         cwd: path.join(process.cwd(), outdir)
-      })
-   } else {
-      console.log(`To publish your buildage:\n1. Navigate to the ${outdir} directory:\ncd ./${outdir}\n2. Publish the buildage to npm:\nnpm publish\nYour buildage is ready to share with the world! 🚀`);
+      if (args.publish) {
+         console.log("Publishing the production build to the npm repository...")
+         execSync(`npm publish`, {
+            cwd: path.join(process.cwd(), outdir)
+         })
+      } else {
+         console.log(`\nTo publish your package:`);
+         console.log(`${chalk.yellow(`1. Navigate to the ${outdir} directory:`)}\n ${chalk.green(`cd ./${outdir}`)}\n${chalk.yellow(`2. Publish the buildage to npm:`)}\n${chalk.green(`npm publish`)}\nYour buildage is ready to share with the world! 🚀`);
+      }
+   } catch (error) {
+      spinner.fail("An error occurred while generating the production build.")
+      console.error(error);
    }
 }
 

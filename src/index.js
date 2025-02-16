@@ -3,16 +3,16 @@
 import { Command } from "commander";
 import start from "./actions/start/index.js";
 import build from "./actions/build/index.js";
-import create from "./actions/create/index.js";
+// import create from "./actions/create/index.js";
 
 const program = new Command();
 
 program.name("Make build").description("Usages");
 
-program
-   .command("create")
-   .description("create a new project")
-   .action(create);
+// program
+//    .command("create")
+//    .description("create a new project")
+//    .action(create);
 
 program
    .command("start")
