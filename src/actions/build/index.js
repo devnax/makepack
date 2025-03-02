@@ -5,15 +5,15 @@ import chalk from 'chalk'
 import ora from 'ora'
 import { glob } from 'glob'
 import ts from 'typescript'
-import { execSync, logLoader } from '../../helpers.js'
-import makapeckConfig from '../../makapeck-config.js'
+import { execSync } from '../../helpers.js'
+import makepackConfig from '../../makepack-config.js'
 
 const build = async (args) => {
 
    const spinner = ora("Generating a production build for the package...").start();
 
    try {
-      const { build } = await makapeckConfig()
+      const { build } = await makepackConfig()
       const configs = build.configs
       if (!configs || !configs.length) process.exit("Invalid configuration");
       const outdir = build.outdir

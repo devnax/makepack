@@ -6,6 +6,6 @@ function add(a: number, b: number): number {
 export default add`
   return {
     content,
-    filename: `${args.rootdir}/${args.entry}`
+    filename: `${args.sourceDir}/${args.sourceEntry}`
   }
 }

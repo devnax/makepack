@@ -1,7 +1,7 @@
-import { loadConfig } from "../../../helpers.js"
+import makepackConfig from "../../../makepack-config.js"
 
 export default async () => {
-   const config = await loadConfig()
+   const config = await makepackConfig()
    return {
       content: `node_modules\n${config.build.outdir}`,
       filename: ".gitignore"

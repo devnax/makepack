@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../test/index.ts"],
-  "sourcesContent": ["const sum = (a: number, b: number) => a + b;\nexport default sum;"],
-  "mappings": "AAAA,MAAM,MAAM,CAAC,GAAW,MAAc,IAAI;AAC1C,IAAO,gBAAQ;",
-  "names": []
-}

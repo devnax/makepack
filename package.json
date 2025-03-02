@@ -1,6 +1,6 @@
 {
   "name": "makepack",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "type": "module",
   "description": "A CLI tool to create, build, and manage JavaScript, TypeScript, React, and React-TypeScript libraries for npm projects.",
   "files": [
@@ -52,6 +52,7 @@
     "npm-package"
   ],
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   }

@@ -2,7 +2,7 @@ import path from 'path'
 import fs from 'fs-extra'
 import { pathToFileURL } from 'url';
 
-const makapeckConfig = async () => {
+const makepackConfig = async () => {
    const makepack = path.resolve(process.cwd(), "makepack.js");
 
    const defaultConfig = {
@@ -12,7 +12,7 @@ const makapeckConfig = async () => {
          formatPackageJson: (p) => p,
          configs: [
             {
-               entryPoints: "test/**/*.{tsx,ts,js,jsx}",
+               entryPoints: "src/**/*.{tsx,ts,js,jsx}",
                outdir: "esm",
                format: "esm",
                sourcemap: true,
@@ -23,7 +23,7 @@ const makapeckConfig = async () => {
                },
             },
             {
-               entryPoints: "test/**/*.{tsx,ts,js,jsx}",
+               entryPoints: "src/**/*.{tsx,ts,js,jsx}",
                outdir: "",
                format: "cjs",
                sourcemap: true,
@@ -35,9 +35,10 @@ const makapeckConfig = async () => {
             }
          ]
       },
-      server: {
+      start: {
          port: 5000,
-         root: "server.ts"
+         entry: "App.tsx",
+         express: (_app) => { }
       }
    }
 
@@ -60,4 +61,4 @@ const makapeckConfig = async () => {
    return defaultConfig
 }
 
-export default makapeckConfig
+export default makepackConfig

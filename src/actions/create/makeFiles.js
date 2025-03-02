@@ -1,7 +1,7 @@
 // import makepack from "./files/makepack.js";
 import packageJson from "./files/package-json.js";
 import gitignore from "./files/gitignore.js";
-import serve from "./files/serve.js";
+import App from "./files/App.js";
 import tsconfig from "./files/tsconfig.js";
 import projectJs from "./files/project-js.js";
 import projectJsx from "./files/project-jsx.js";
@@ -13,37 +13,37 @@ import fs from "fs-extra"
 import path from "path"
 import readmeMd from "./files/readme.md.js";
 
-export default async (args) => {
+export default async (info) => {
    const files = [
-      await packageJson(args),
-      await gitignore(args),
-      await serve(args),
-      await readmeMd(args)
+      await packageJson(info),
+      await gitignore(info),
+      await App(info),
+      await readmeMd(info)
    ];
 
-   switch (args.template) {
+   switch (info.template) {
       case "typescript":
-         files.push(await projectTs(args))
+         files.push(await projectTs(info))
          break
       case "react with typescript":
-         files.push(await projectTsx(args))
+         files.push(await projectTsx(info))
          break;
       case "javascript":
-         files.push(await projectJs(args))
+         files.push(await projectJs(info))
          break
       case "react with javascript":
-         files.push(await projectJsx(args))
+         files.push(await projectJsx(info))
          break;
    }
 
    // push ts config
-   if (args.template.includes("typescript")) {
-      files.push(await tsconfig(args))
+   if (info.template.includes("typescript")) {
+      files.push(await tsconfig(info))
    }
 
    for (let file of files) {
       // check if the file exists
-      if (fs.existsSync(path.join(args.cwd, file.filename))) {
+      if (fs.existsSync(path.join(info.cwd, file.filename))) {
          const { overwrite } = await inquirer.prompt([
             {
                type: "confirm",
@@ -55,10 +55,10 @@ export default async (args) => {
          if (!overwrite) {
             continue
          } else {
-            fs.removeSync(path.join(args.cwd, file.filename))
+            fs.removeSync(path.join(info.cwd, file.filename))
          }
       }
 
-      fs.writeFileSync(path.join(args.cwd, file.filename), file.content)
+      fs.writeFileSync(path.join(info.cwd, file.filename), file.content)
    }
 }

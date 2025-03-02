@@ -1,17 +1,17 @@
-export default async (args) => {
-  let ext = args.template === 'react with typescript' ? ".tsx" : ".jsx"
+export default async (info) => {
+  let ext = info.template.includes('typescript') ? ".tsx" : ".jsx"
   let _import = ''
   let _code = ''
 
-  switch (args.template) {
+  switch (info.template) {
     case "typescript":
     case "javascript":
-      _import = `import add from './${args.rootdir}'`
+      _import = `import add from './${info.sourceDir}'`
       _code = `<code>{add(5,5)}</code>`
       break
     case "react with typescript":
     case "react with javascript":
-      _import = `import Count from './${args.rootdir}'`
+      _import = `import Count from './${info.sourceDir}'`
       _code = `<Count />`
       break;
   }
@@ -47,6 +47,6 @@ if (rootEle) {
   `
   return {
     content,
-    filename: `serve${ext}`
+    filename: `App${ext}`
   }
 }

@@ -1,11 +1,11 @@
 export default async (args) => {
   const content = `import React, { useState } from 'react';
 
-const Count = () => {
-  const [count, setCount] = useState(0);
-  const increment = () => setCount(prevCount => prevCount + 1);
-  const decrement = () => setCount(prevCount => prevCount - 1);
-  const reset = () => setCount(0);
+const Count: React.FC = () => {
+  const [count, setCount] = useState<number>(0);
+  const increment = (): void => setCount(prevCount => prevCount + 1);
+  const decrement = (): void => setCount(prevCount => prevCount - 1);
+  const reset = (): void => setCount(0);
 
   return (
     <div style={styles.container}>
@@ -20,11 +20,11 @@ const Count = () => {
   );
 };
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   container: {
     textAlign: 'center',
     padding: '20px',
-    fontFamily: 'Arial, sans-serif'
+    fontFamily: 'Arial, sans-serif',
   },
   counter: {
     fontSize: '2rem',
@@ -46,6 +46,6 @@ export default Count;
   `
   return {
     content,
-    filename: `${args.rootdir}/${args.entry}`
+    filename: `${args.sourceDir}/${args.sourceEntry}`
   }
 }

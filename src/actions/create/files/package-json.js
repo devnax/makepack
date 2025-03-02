@@ -1,7 +1,5 @@
-import { loadConfig } from "../../../helpers.js"
 
 export default async (info) => {
-   const config = await loadConfig()
    let dependencies = {}
    let devDependencies = {
       "makepack": "latest",
@@ -10,39 +8,39 @@ export default async (info) => {
       "express": "latest"
    }
 
-   if (args.template.includes("typescript")) {
+   if (info.template.includes("typescript")) {
       devDependencies["typescript"] = "^4.4.2"
       devDependencies["@types/react"] = "^19.0.2"
       devDependencies["@types/react-dom"] = "^19.0.2"
       devDependencies["@types/express"] = "latest"
    }
 
-   let main = args.entry.split('.')
+   let main = info.sourceEntry.split('.')
    main.pop()
 
    const json = {
-      name: args.dirname,
+      name: info.projectDirName,
       version: "1.0.0",
-      main: `./${config.build.outdir}/cjs/index.js`,
-      module: `./${config.build.outdir}/index.js`,
-      types: `./${config.build.outdir}/index.d.ts`,
+      main: `./index.js`,
+      module: `./esm/index.js`,
+      types: `./types/index.d.ts`,
       description: "",
       keywords: [],
       exports: {
          ".": {
-            "types": `./${config.build.outdir}/index.d.ts`,
-            "import": `./${config.build.outdir}/index.js`,
-            "require": `./${config.build.outdir}/cjs/index.js`
+            "types": `./types/index.d.ts`,
+            "import": `./esm/index.js`,
+            "require": `./index.js`
          },
          "./*": {
-            "import": `./${config.build.outdir}/*.js`,
-            "require": `./${config.build.outdir}/cjs/*.js`
+            "import": `./esm/*.js`,
+            "require": `./*.js`
          }
       },
       scripts: {
          "start": "makepack serve",
          "build": "makepack build",
-         "prepare": "npm run build",
+         "pub": "makepack build -p"
       },
       dependencies,
       devDependencies

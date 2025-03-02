@@ -1,36 +1,22 @@
-import inquirer from 'inquirer'
 import fs from 'fs-extra'
 import path from 'path'
 import { createServer as createViteServer } from 'vite';
 import express from 'express';
-import { glob } from 'glob'
-import { logger, loadConfig } from '../../helpers.js'
+import react from '@vitejs/plugin-react'
+import { logger } from '../../helpers.js'
 import chalk from 'chalk';
 import figlet from 'figlet';
+import makepackConfig from '../../makepack-config.js';
 
 const app = express();
 
-const serve = async (args) => {
-   if (args.root === undefined) {
-      const serveFile = await glob('serve.{ts,js,tsx,jsx}', {
-         cwd: process.cwd()
-      })
-      if (!serveFile.length) {
-         let { root } = await inquirer.prompt([{
-            type: 'input',
-            name: 'root',
-            message: 'Enter the root file',
-         }]);
-
-         if (!fs.existsSync(path.join(process.cwd(), root))) {
-            throw new Error(`invalid root: ${root}`);
-         }
-         args.root = root;
-      } else {
-         args.root = serveFile[0];
-      }
+const start = async (args) => {
+   const config = await makepackConfig()
+   const exists = fs.existsSync(path.join(process.cwd(), config.start.entry))
+   if (!exists) {
+      logger.error(`Entry file ${entry} does not exist. please check your config file`)
+      process.exit(1)
    }
-
 
    let template = `
       <!doctype html>
@@ -41,21 +27,32 @@ const serve = async (args) => {
         </head>
         <body>
           <div id="root"></div>
-          <script type="module" src="${args.root}"></script>
+          <script type="module" src="${config.start.entry}"></script>
         </body>
       </html>
   `;
 
-   let config = await loadConfig(args)
-   let serveConfig = config.serve || {}
-   let viteConfig = serveConfig.vite || {}
-   let express = serveConfig.express
+   const viteConfig = {
+      root: process.cwd(),
+      plugins: [react()],
+      server: {
+         middlewareMode: true,
+      },
+      customLogger: {
+         info: (msg) => {
+            logger.info(msg)
+         },
+         warn: (msg) => logger.warning(msg),
+         error: (msg) => logger.error(msg),
+      },
+      appType: 'custom'
+   }
 
    const vite = await createViteServer(viteConfig);
    app.use(vite.middlewares);
 
-   if (express) {
-      express(app)
+   if (config.start.express) {
+      config.start.express(app)
    }
 
    app.get('*', async (req, res, next) => {
@@ -71,8 +68,8 @@ const serve = async (args) => {
       }
    });
 
-   let server = app.listen(args.port, () => {
-      figlet("Make build", function (err, data) {
+   let server = app.listen(config.start.port, () => {
+      figlet("Makepack", function (err, data) {
          if (err) {
             console.log("Something went wrong...");
             console.dir(err);
@@ -82,14 +79,14 @@ const serve = async (args) => {
             process.exit()
          }
          console.log(data);
-         logger.success(`Server is running on ${chalk.blue(chalk.underline(`http://localhost:${args.port}`))}`);
+         logger.success(`Server is running on ${chalk.blue(chalk.underline(`http://localhost:${config.start.port}`))}`);
       });
    });
 
-   app.use((err, req, res, next) => {
+   app.use((err, req, res) => {
       logger.error(`Unhandled Error: ${err.message}`);
       res.status(500).send('Internal Server Error');
    });
 }
 
-export default serve
+export default start
