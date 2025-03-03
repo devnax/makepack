@@ -40,7 +40,7 @@ export default async (info) => {
          }
       },
       scripts: {
-         "start": "makepack serve",
+         "start": "makepack start",
          "build": "makepack build",
          "build:publish": "makepack publish"
       },

@@ -5,10 +5,9 @@ import chalk from 'chalk'
 import ora from 'ora'
 import { glob } from 'glob'
 import ts from 'typescript'
-import { execSync } from '../../helpers.js'
 import makepackConfig from '../../makepack-config.js'
 
-const build = async (args) => {
+const build = async () => {
 
    const spinner = ora("Generating a production build for the package...").start();
 
@@ -69,19 +68,15 @@ const build = async (args) => {
       const formatPackageJson = build.formatPackageJson || ((p) => p)
       packageJson = formatPackageJson(packageJson)
 
-      fs.writeFileSync(path.join(process.cwd(), outdir, '/package.json'), JSON.stringify(packageJson, null, 2));
-      fs.copyFileSync(path.join(process.cwd(), '/readme.md'), path.join(process.cwd(), outdir, `/readme.md`))
+      fs.writeFileSync(path.join(process.cwd(), build.outdir, '/package.json'), JSON.stringify(packageJson, null, 2));
+      fs.copyFileSync(path.join(process.cwd(), '/readme.md'), path.join(process.cwd(), build.outdir, `/readme.md`))
       spinner.succeed('Production build generated successfully! The package is ready for deployment.')
 
-      if (args.publish) {
-         console.log("Publishing the production build to the npm repository...")
-         execSync(`npm publish`, {
-            cwd: path.join(process.cwd(), outdir)
-         })
-      } else {
-         console.log(`\nTo publish your package:`);
-         console.log(`${chalk.yellow(`1. Navigate to the ${outdir} directory:`)}\n ${chalk.green(`cd ./${outdir}`)}\n${chalk.yellow(`2. Publish the buildage to npm:`)}\n${chalk.green(`npm publish`)}\nYour buildage is ready to share with the world! 🚀`);
-      }
+      console.log(`\nTo publish your package:`);
+      console.log(`run: ${chalk.green(`makepack publish`)} to publish the package directly from the current project.`);
+      console.log(chalk.yellow(`OR`));
+      console.log(`${chalk.yellow(`Navigate to the ${build.outdir} directory:`)} ${chalk.green(`cd ./${build.outdir}`)} and run ${chalk.green(`npm publish`)}`);
+
    } catch (error) {
       spinner.fail("An error occurred while generating the production build.")
       console.error(error);
