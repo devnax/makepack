@@ -16,11 +16,11 @@ const build = async (args) => {
       const { build } = await makepackConfig()
       const configs = build.configs
       if (!configs || !configs.length) process.exit("Invalid configuration");
-      const outdir = build.outdir
+      const outdir = path.join(process.cwd(), build.outdir)
 
       try {
-         fs.removeSync(path.join(process.cwd(), outdir));
-         fs.mkdirSync(path.join(process.cwd(), outdir));
+         fs.removeSync(outdir);
+         fs.mkdirSync(outdir);
       } catch (err) { }
 
       for (let ebconfig of configs) {
@@ -29,13 +29,13 @@ const build = async (args) => {
          esbuild.buildSync({
             ...ebconfig,
             entryPoints,
-            outdir: path.join(process.cwd(), outdir, ebconfig.outdir || ''),
+            outdir: path.join(outdir, ebconfig.outdir || ''),
          });
       }
 
       if (build.types) {
          let tsconfig = {
-            outDir: path.join(process.cwd(), outdir),
+            outDir: path.join(outdir, 'types'),
             declaration: true,
             emitDeclarationOnly: true,
             strict: true,
@@ -44,7 +44,7 @@ const build = async (args) => {
             esModuleInterop: true,
          }
          spinner.text = "Generating TypeScript declarations..."
-         const files = await glob("test/**/*.{tsx,ts,js,jsx}") || []
+         const files = await glob("src/**/*.{tsx,ts,js,jsx}") || []
          const program = ts.createProgram(files, tsconfig);
          const emitResult = program.emit();
          const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);

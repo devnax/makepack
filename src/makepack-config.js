@@ -13,9 +13,10 @@ const makepackConfig = async () => {
          configs: [
             {
                entryPoints: "src/**/*.{tsx,ts,js,jsx}",
-               outdir: "esm",
+               outdir: "",
                format: "esm",
                sourcemap: true,
+               minify: true,
                jsx: 'automatic',
                loader: {
                   '.ts': 'ts',
@@ -24,9 +25,10 @@ const makepackConfig = async () => {
             },
             {
                entryPoints: "src/**/*.{tsx,ts,js,jsx}",
-               outdir: "",
+               outdir: "cjs",
                format: "cjs",
                sourcemap: true,
+               minify: true,
                jsx: 'automatic',
                loader: {
                   '.ts': 'ts',

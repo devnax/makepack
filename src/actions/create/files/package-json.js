@@ -26,21 +26,23 @@ export default async (info) => {
       types: `./types/index.d.ts`,
       description: "",
       keywords: [],
-      exports: {
+      "exports": {
          ".": {
-            "types": `./types/index.d.ts`,
-            "import": `./esm/index.js`,
-            "require": `./index.js`
+            "types": "./types/index.d.ts",
+            "require": "./cjs/index.js",
+            "import": "./index.js",
          },
+         "./types/*": "./types/*.d.ts",
+         "./cjs/*": "./cjs/*.js",
          "./*": {
-            "import": `./esm/*.js`,
-            "require": `./*.js`
+            "import": "./*.js",
+            "require": "./cjs/*.js"
          }
       },
       scripts: {
          "start": "makepack serve",
          "build": "makepack build",
-         "pub": "makepack build -p"
+         "build:publish": "makepack publish"
       },
       dependencies,
       devDependencies

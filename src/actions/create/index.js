@@ -63,8 +63,9 @@ const create = async () => {
    const projectDir = path.join(cwd, information.projectDirName)
 
    if (information.projectDirName !== cwdFolder) {
-      fs.removeSync(projectDir)
-      fs.mkdirSync(projectDir)
+      if (fs.existsSync(projectDir)) {
+         fs.mkdirSync(projectDir)
+      }
    }
 
    if (!fs.existsSync(path.join(projectDir, information.sourceDir))) {
