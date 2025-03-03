@@ -62,10 +62,8 @@ const create = async () => {
    logger.info("", "Creating project...", false)
    const projectDir = path.join(cwd, information.projectDirName)
 
-   if (information.projectDirName !== cwdFolder) {
-      if (fs.existsSync(projectDir)) {
-         fs.mkdirSync(projectDir)
-      }
+   if (!fs.existsSync(projectDir)) {
+      fs.mkdirSync(projectDir)
    }
 
    if (!fs.existsSync(path.join(projectDir, information.sourceDir))) {
