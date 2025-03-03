@@ -1,6 +1,7 @@
 import path from 'path'
 import { execSync, logger } from '../../helpers.js'
 import makepackConfig from '../../makepack-config.js'
+import fs from 'fs-extra'
 
 const publish = async () => {
    const { build } = await makepackConfig()
@@ -12,7 +13,7 @@ const publish = async () => {
    }
    logger.info(`Publishing the production build to the npm repository...`)
    execSync(`npm publish`, {
-      cwd: path.join(process.cwd(), build.outdir)
+      cwd: buildDir
    })
 }
 
