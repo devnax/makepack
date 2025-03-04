@@ -1,9 +1,8 @@
-import path from 'path'
-import fs from 'fs-extra'
-import { pathToFileURL } from 'url';
+import { cosmiconfig } from "cosmiconfig";
 
 const makepackConfig = async () => {
-   const makepack = path.resolve(process.cwd(), "makepack.js");
+   const explorer = cosmiconfig("makepack");
+   const configResult = await explorer.search();
 
    const defaultConfig = {
       build: {
@@ -44,20 +43,15 @@ const makepackConfig = async () => {
       }
    }
 
-   if (fs.existsSync(makepack)) {
-      try {
-         const c = await import(pathToFileURL(makepack).href)
-         const configFn = c.default
-         if (typeof configFn === 'function') {
-            const nc = configFn(defaultConfig)
-            if (!nc) {
-               console.log("Config function must return a config object")
-               process.exit(1)
-            }
-            return nc
+   if (configResult && configResult.config) {
+      let fn = configResult.config;
+      if (typeof fn === 'function') {
+         const userConfig = fn(defaultConfig)
+         if (!userConfig) {
+            console.log("Config function must return a config object")
+            process.exit(1)
          }
-      } catch (error) {
-         console.log(error);
+         return userConfig
       }
    }
    return defaultConfig

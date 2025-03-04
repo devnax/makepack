@@ -22,4 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-test
+build
+makepack.config.ts
+makepack.config.js

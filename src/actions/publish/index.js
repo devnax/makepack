@@ -11,6 +11,7 @@ const publish = async () => {
       logger.error(`Build directory ${buildDir} does not exist. Please build the project first`)
       process.exit(1)
    }
+
    logger.info(`Publishing the production build to the npm repository...`)
    execSync(`npm publish`, {
       cwd: buildDir

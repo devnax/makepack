@@ -1,6 +1,6 @@
 {
   "name": "makepack",
-  "version": "1.5.5",
+  "version": "1.5.9",
   "type": "module",
   "description": "A CLI tool to create, build, and manage JavaScript, TypeScript, React, and React-TypeScript libraries for npm projects.",
   "files": [
@@ -25,12 +25,15 @@
   },
   "homepage": "https://github.com/devnax/makepack#readme",
   "scripts": {
-    "start": "node ./src/index.js"
+    "start": "node ./src/index.js start",
+    "create": "node ./src/index.js create",
+    "build": "node ./src/index.js build"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.4",
     "chalk": "^5.4.1",
     "commander": "^12.1.0",
+    "cosmiconfig": "^9.0.0",
     "esbuild": "^0.24.2",
     "express": "^4.21.1",
     "figlet": "^1.8.0",

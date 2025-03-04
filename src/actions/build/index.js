@@ -33,15 +33,35 @@ const build = async () => {
       }
 
       if (build.types) {
-         let tsconfig = {
-            outDir: path.join(outdir, 'types'),
+         const tsconfigPath = path.resolve(process.cwd(), "tsconfig.json");
+         let tsconfig = {};
+         if (fs.existsSync(tsconfigPath)) {
+            const parsedConfig = ts.getParsedCommandLineOfConfigFile(
+               tsconfigPath,
+               {},
+               ts.sys
+            );
+
+            if (!parsedConfig) {
+               console.error("❌ Error parsing tsconfig.json");
+               process.exit(1);
+            } else {
+               tsconfig = parsedConfig.options;
+            }
+         }
+
+         tsconfig = {
+            allowJs: true,
+            target: ts.ScriptTarget.ESNext, // Ensure it's an enum
+            skipLibCheck: true,
+            moduleResolution: ts.ModuleResolutionKind.Node10,
+            ...tsconfig, // Preserve root tsconfig settings
+            outDir: path.join(outdir, "types"),
             declaration: true,
             emitDeclarationOnly: true,
-            strict: true,
-            allowJs: true,
-            jsx: ts.JsxEmit.React,
-            esModuleInterop: true,
-         }
+            noEmit: false,
+         };
+
          spinner.text = "Generating TypeScript declarations..."
          const files = await glob("src/**/*.{tsx,ts,js,jsx}") || []
          const program = ts.createProgram(files, tsconfig);
