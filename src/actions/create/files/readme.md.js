@@ -1,8 +1,7 @@
 
 export default async (info) => {
    let pkgname = info.projectDirName
-   const content = `
-   # ${pkgname}
+   const content = `# ${pkgname}
 
 [![npm version](https://img.shields.io/npm/v/${pkgname}.svg)](https://www.npmjs.com/package/${pkgname})
 [![License](https://img.shields.io/npm/l/${pkgname}.svg)](https://github.com/your-username/${pkgname}/blob/main/LICENSE)
@@ -14,13 +13,13 @@ A brief description of what your package does and its purpose.
 
 \`\`\`sh
 npm install ${pkgname}
-      \`\`\`
+\`\`\`
 
 or with yarn:
 
 \`\`\`sh
 yarn add ${pkgname}
-      \`\`\`
+\`\`\`
 
 ## Usage
 
@@ -29,7 +28,7 @@ yarn add ${pkgname}
 
    const result = feature("example");
    console.log(result);
-   \`\`\`
+\`\`\`
 
 ## API
 
@@ -56,7 +55,7 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 ---
 
 Feel free to modify this template based on your package's specific needs.
-   `
+`;
    return {
       content,
       filename: `readme.md`
