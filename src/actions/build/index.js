@@ -22,14 +22,18 @@ const build = async () => {
          fs.mkdirSync(outdir);
       } catch (err) { }
 
+      const batchSize = 500;
       for (let ebconfig of configs) {
-         const files = await glob(ebconfig.entryPoints) || []
-         const entryPoints = files.map(entry => path.join(process.cwd(), entry))
-         esbuild.buildSync({
-            ...ebconfig,
-            entryPoints,
-            outdir: path.join(outdir, ebconfig.outdir || ''),
-         });
+         const files = await glob(ebconfig.entryPoints) || [];
+         const entryPoints = files.map(entry => path.join(process.cwd(), entry));
+         for (let i = 0; i < entryPoints.length; i += batchSize) {
+            const batch = entryPoints.slice(i, i + batchSize);
+            await esbuild.build({
+               ...ebconfig,
+               entryPoints: batch,
+               outdir: path.join(outdir, ebconfig.outdir || ''),
+            });
+         }
       }
 
       if (build.types) {
