@@ -68,6 +68,10 @@ const start = async (args) => {
       }
    });
 
+   app.use((_req, res) => {
+      res.status(500).send('Internal Server Error');
+   });
+
    let server = app.listen(config.start.port, () => {
       figlet("Makepack", function (err, data) {
          if (err) {
@@ -81,11 +85,6 @@ const start = async (args) => {
          console.log(data);
          logger.success(`Server is running on ${chalk.blue(chalk.underline(`http://localhost:${config.start.port}`))}`);
       });
-   });
-
-   app.use((err, req, res) => {
-      logger.error(`Unhandled Error: ${err.message}`);
-      res.status(500).send('Internal Server Error');
    });
 }
 

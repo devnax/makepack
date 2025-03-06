@@ -25,3 +25,5 @@ dist-ssr
 build
 makepack.config.ts
 makepack.config.js
+App.*
+express.*
