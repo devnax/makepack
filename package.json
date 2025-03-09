@@ -1,6 +1,6 @@
 {
   "name": "makepack",
-  "version": "1.5.13",
+  "version": "1.5.14",
   "type": "module",
   "description": "A CLI tool to create, build, and manage JavaScript, TypeScript, React, and React-TypeScript libraries for npm projects.",
   "files": [
@@ -30,11 +30,11 @@
     "build": "node ./src/index.js build"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
     "chalk": "^5.4.1",
+    "chokidar": "^4.0.3",
     "commander": "^12.1.0",
     "cosmiconfig": "^9.0.0",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.25.0",
     "express": "^4.21.1",
     "figlet": "^1.8.0",
     "figures": "^6.1.0",

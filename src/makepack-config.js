@@ -39,7 +39,6 @@ const makepackConfig = async () => {
       start: {
          port: 5000,
          entry: "App.tsx",
-         express: (_app) => { }
       }
    }
 

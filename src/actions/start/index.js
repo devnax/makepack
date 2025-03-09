@@ -1,16 +1,37 @@
 import fs from 'fs-extra'
 import path from 'path'
-import { createServer as createViteServer } from 'vite';
-import express from 'express';
-import react from '@vitejs/plugin-react'
 import { logger } from '../../helpers.js'
-import chalk from 'chalk';
-import figlet from 'figlet';
 import makepackConfig from '../../makepack-config.js';
+import esbuild from 'esbuild';
+import chokidar from 'chokidar';
+import { fileURLToPath } from 'url';
+import { spawn } from 'child_process';
+let __filename, __dirname;
 
-const app = express();
+if (typeof import.meta.url !== 'undefined') {
+   __filename = fileURLToPath(import.meta.url);
+   __dirname = path.dirname(__filename);
+} else {
+   __filename = __filename;
+   __dirname = __dirname;
+}
 
-const start = async (args) => {
+let server = null;
+function startServer(config) {
+   if (server) {
+      server.kill('SIGINT');
+      server = null;
+   }
+   server = spawn('node', [path.resolve(__dirname, 'express.js')], {});
+   server.stdout.on('data', (data) => {
+      console.log(data.toString().trim());
+   });
+   server.stderr.on('data', (data) => {
+      console.error(data.toString().trim());
+   });
+}
+
+const start = async () => {
    const config = await makepackConfig()
    const exists = fs.existsSync(path.join(process.cwd(), config.start.entry))
    if (!exists) {
@@ -18,74 +39,43 @@ const start = async (args) => {
       process.exit(1)
    }
 
-   let template = `
-      <!doctype html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        </head>
-        <body>
-          <div id="root"></div>
-          <script type="module" src="${config.start.entry}"></script>
-        </body>
-      </html>
-  `;
+   startServer(config)
+   const expressjs = path.join(process.cwd(), 'express.js')
+   const expressts = path.join(process.cwd(), 'express.ts')
 
-   const viteConfig = {
-      root: process.cwd(),
-      plugins: [react()],
-      server: {
-         middlewareMode: true,
-      },
-      customLogger: {
-         info: (msg) => {
-            logger.info(msg)
-         },
-         warn: (msg) => logger.warning(msg),
-         error: (msg) => logger.error(msg),
-      },
-      appType: 'custom'
-   }
-
-   const vite = await createViteServer(viteConfig);
-   app.use(vite.middlewares);
-
-   if (config.start.express) {
-      config.start.express(app)
-   }
-
-   app.get('*', async (req, res, next) => {
-      const url = req.originalUrl;
-      try {
-         template = await vite.transformIndexHtml(url, template);
-         res.status(200).set({
-            'Content-Type': 'text/html'
-         }).end(template);
-      } catch (e) {
-         vite.ssrFixStacktrace(e);
-         next(e);
+   if (fs.existsSync(expressjs) || fs.existsSync(expressts)) {
+      let filename = fs.existsSync(expressjs) ? "express.js" : "express.ts";
+      const build = () => {
+         esbuild.build({
+            entryPoints: [filename],
+            outfile: '.server/express.js',
+            bundle: true,
+            format: 'esm',
+            platform: 'node',
+         });
       }
-   });
 
-   app.use((_req, res) => {
-      res.status(500).send('Internal Server Error');
-   });
+      build()
 
-   let server = app.listen(config.start.port, () => {
-      figlet("Makepack", function (err, data) {
-         if (err) {
-            console.log("Something went wrong...");
-            console.dir(err);
-            server.close(() => {
-               console.log('Server has been stopped.');
-            });
-            process.exit()
-         }
-         console.log(data);
-         logger.success(`Server is running on ${chalk.blue(chalk.underline(`http://localhost:${config.start.port}`))}`);
+      const watcher = chokidar.watch(filename, {
+         persistent: true,
+         ignoreInitial: true,
       });
-   });
+
+      watcher.on('change', async () => {
+         build()
+         startServer(config)
+      });
+
+      watcher.on('unlink', (path) => {
+         startServer(config)
+      });
+
+      process.on('SIGINT', async () => {
+         watcher.close();
+         process.exit(0);
+      });
+   }
 }
 
 export default start

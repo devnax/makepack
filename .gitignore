@@ -23,7 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 build
-makepack.config.ts
-makepack.config.js
-App.*
-express.*
+/makepack.config.js
+/App.*
+/express.*
+/.server
