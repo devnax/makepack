@@ -7,6 +7,7 @@ const viteSetup = async (app) => {
    const config = await makepackConfig()
    const viteConfig = {
       root: process.cwd(),
+      base: "/",
       // plugins: [react()],
       server: {
          middlewareMode: true,
@@ -26,6 +27,7 @@ const viteSetup = async (app) => {
 
    app.get('*', async (req, res, next) => {
       const url = req.originalUrl;
+
       try {
          let template = await vite.transformIndexHtml(url, `
             <!doctype html>
@@ -40,6 +42,7 @@ const viteSetup = async (app) => {
               </body>
             </html>
         `);
+
          res.status(200).set({
             'Content-Type': 'text/html'
          }).end(template);

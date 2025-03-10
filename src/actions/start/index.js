@@ -39,7 +39,6 @@ const start = async () => {
       process.exit(1)
    }
 
-   startServer(config)
    const expressjs = path.join(process.cwd(), 'express.js')
    const expressts = path.join(process.cwd(), 'express.ts')
 
@@ -76,6 +75,7 @@ const start = async () => {
          process.exit(0);
       });
    }
+   startServer(config)
 }
 
 export default start
