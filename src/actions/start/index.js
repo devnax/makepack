@@ -48,7 +48,7 @@ const start = async () => {
       const build = () => {
          esbuild.build({
             entryPoints: [filename],
-            outfile: path.resolve(__dirname, 'custom-express.js'),
+            outfile: path.resolve(__dirname, 'user-express.js'),
             bundle: true,
             format: 'esm',
             platform: 'node',

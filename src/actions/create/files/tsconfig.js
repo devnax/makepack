@@ -1,4 +1,4 @@
-export default async (args) => {
+export default async () => {
    const content = {
       "compilerOptions": {
          "target": "es5",
@@ -20,9 +20,10 @@ export default async (args) => {
          "noEmit": true,
          "jsx": "react"
       },
-      "include": [args.rootdir],
+      "include": ["src"],
       "exclude": [
-         "node_modules"
+         "node_modules",
+         "build"
       ]
    }
 
