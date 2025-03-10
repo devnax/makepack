@@ -17,7 +17,7 @@ if (typeof import.meta.url !== 'undefined') {
 }
 
 let server = null;
-function startServer(config) {
+function startServer() {
    if (server) {
       server.kill('SIGINT');
       server = null;
@@ -48,7 +48,7 @@ const start = async () => {
       const build = () => {
          esbuild.build({
             entryPoints: [filename],
-            outfile: '.server/express.js',
+            outfile: path.resolve(__dirname, 'custom-express.js'),
             bundle: true,
             format: 'esm',
             platform: 'node',
