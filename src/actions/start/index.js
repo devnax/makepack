@@ -52,7 +52,7 @@ const start = async () => {
          bundle: true,
          format: 'esm',
          platform: 'node',
-         external: ['*'],
+         packages: 'external',
       })
 
       ctx.watch()
