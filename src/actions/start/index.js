@@ -44,29 +44,25 @@ const start = async () => {
 
    if (fs.existsSync(expressjs) || fs.existsSync(expressts)) {
       let filename = fs.existsSync(expressjs) ? "express.js" : "express.ts";
-      const build = () => {
-         esbuild.build({
-            entryPoints: [filename],
-            outfile: path.resolve(__dirname, 'user-express.js'),
-            bundle: true,
-            format: 'esm',
-            platform: 'node',
-         });
-      }
+      let outfile = path.resolve(__dirname, 'user-express.js')
 
-      build()
+      const ctx = await esbuild.context({
+         entryPoints: [filename],
+         outfile: path.resolve(__dirname, 'user-express.js'),
+         bundle: true,
+         format: 'esm',
+         platform: 'node',
+         external: ['express'],
+      })
 
-      const watcher = chokidar.watch(filename, {
+      ctx.watch()
+
+      const watcher = chokidar.watch(outfile, {
          persistent: true,
          ignoreInitial: true,
       });
 
       watcher.on('change', async () => {
-         build()
-         startServer(config)
-      });
-
-      watcher.on('unlink', (path) => {
          startServer(config)
       });
 

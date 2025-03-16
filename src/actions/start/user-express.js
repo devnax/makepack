@@ -1,7 +1,7 @@
 // express.ts
-var express = (app) => {
+var expressApp = (app) => {
 };
-var express_default = express;
+var express_default = expressApp;
 export {
   express_default as default
 };

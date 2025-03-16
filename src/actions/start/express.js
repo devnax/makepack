@@ -4,14 +4,12 @@ import chalk from 'chalk';
 import makepackConfig from '../../makepack-config.js';
 import viteSetup from './vite.js';
 import userExpress from './user-express.js';
-import path from 'path';
 
 const app = express();
 const server = async () => {
    const config = await makepackConfig()
    userExpress(app)
    await viteSetup(app)
-   app.use(express.static(path.join(process.cwd(), 'public')));
    app.use((_req, res) => {
       res.status(500).send('Internal Server Error');
    });
