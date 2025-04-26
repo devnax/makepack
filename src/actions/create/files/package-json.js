@@ -21,7 +21,7 @@ export default async (info) => {
    const json = {
       name: info.projectDirName,
       version: "1.0.0",
-      main: `./index.js`,
+      main: `./cjs/index.js`,
       module: `./index.js`,
       types: `./types/index.d.ts`,
       description: "",
