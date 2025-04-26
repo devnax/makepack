@@ -22,7 +22,7 @@ export default async (info) => {
       name: info.projectDirName,
       version: "1.0.0",
       main: `./index.js`,
-      module: `./esm/index.js`,
+      module: `./index.js`,
       types: `./types/index.d.ts`,
       description: "",
       keywords: [],
