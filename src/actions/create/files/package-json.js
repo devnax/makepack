@@ -26,19 +26,19 @@ export default async (info) => {
       types: `./types/index.d.ts`,
       description: "",
       keywords: [],
-      "exports": {
-         ".": {
-            "types": "./types/index.d.ts",
-            "require": "./cjs/index.js",
-            "import": "./index.js",
-         },
-         "./types/*": "./types/*.d.ts",
-         "./cjs/*": "./cjs/*.js",
-         "./*": {
-            "import": "./*.js",
-            "require": "./cjs/*.js"
-         }
-      },
+      // "exports": {
+      //    ".": {
+      //       "types": "./types/index.d.ts",
+      //       "require": "./cjs/index.js",
+      //       "import": "./index.js",
+      //    },
+      //    "./types/*": "./types/*.d.ts",
+      //    "./cjs/*": "./cjs/*.js",
+      //    "./*": {
+      //       "import": "./*.js",
+      //       "require": "./cjs/*.js"
+      //    }
+      // },
       scripts: {
          "start": "makepack start",
          "build": "makepack build",
