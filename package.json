@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/devnax/makepack#readme",
   "scripts": {
-    "start": "node ./src/index.js start",
+    "start": "node ./src/index.js start --port 3000",
     "create": "node ./src/index.js create",
     "build": "node ./src/index.js build"
   },

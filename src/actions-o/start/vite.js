@@ -1,10 +1,10 @@
 // import react from '@vitejs/plugin-react'
 import { createServer as createViteServer } from 'vite';
 import { logger } from '../../helpers.js'
-import path from 'path';
-import fs from 'fs';
+import makepackConfig from '../../makepack-config.js';
 
 const viteSetup = async (app) => {
+   const config = await makepackConfig()
    const viteConfig = {
       root: process.cwd(),
       base: "/",
@@ -25,11 +25,6 @@ const viteSetup = async (app) => {
    const vite = await createViteServer(viteConfig);
    app.use(vite.middlewares);
 
-   // exists tsconfig.json in the root directory
-   const isTs = fs.existsSync(path.resolve(process.cwd(), 'tsconfig.json'))
-
-   let entry = isTs ? '/src/index.ts' : '/src/index.js';
-
    app.get('*', async (req, res, next) => {
       const url = req.originalUrl;
 
@@ -43,7 +38,7 @@ const viteSetup = async (app) => {
               </head>
               <body>
                 <div id="root"></div>
-                <script type="module" src="${entry}"></script>
+                <script type="module" src="${config.start.entry}"></script>
               </body>
             </html>
         `);
