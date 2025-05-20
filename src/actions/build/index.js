@@ -148,6 +148,9 @@ const build = async (args) => {
          pkgjson.types = `./index.d.ts`;
       }
 
+      delete pkgjson.scripts
+      delete pkgjson.type
+
       fs.writeFileSync(path.join(outdir, 'package.json'), JSON.stringify(pkgjson, null, 2));
    } else {
       spinner.fail("package.json not found!");

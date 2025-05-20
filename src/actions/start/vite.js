@@ -26,9 +26,8 @@ const viteSetup = async (app) => {
    app.use(vite.middlewares);
 
    // exists tsconfig.json in the root directory
-   const isTs = fs.existsSync(path.resolve(process.cwd(), 'tsconfig.json'))
-
-   let entry = isTs ? '/src/index.ts' : '/src/index.js';
+   const isTs = fs.existsSync(path.resolve(process.cwd(), 'main.tsx'))
+   let entry = `/main.${isTs ? "tsx" : "jsx"}`
 
    app.get('*', async (req, res, next) => {
       const url = req.originalUrl;

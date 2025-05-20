@@ -1,8 +1,7 @@
 export default async () => {
   const content = `import React, { useState } from 'react';
-import { createRoot } from 'react-dom/client';
 
-const App = () => {
+const Index = () => {
   const [count, setCount] = useState(0);
   const increment = () => setCount(prevCount => prevCount + 1);
   const decrement = () => setCount(prevCount => prevCount - 1);
@@ -43,11 +42,7 @@ const styles = {
   },
 };
 
-const rootEle = document.getElementById('root')
-if (rootEle) {
-  const root = createRoot(rootEle);
-  root.render(<App />);
-}
+export default Index;
   `
   return {
     content,

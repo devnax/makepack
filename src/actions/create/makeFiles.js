@@ -6,7 +6,7 @@ import projectJs from "./files/project-js.js";
 import projectJsx from "./files/project-jsx.js";
 import projectTs from "./files/project-ts.js";
 import projectTsx from "./files/project-tsx.js";
-
+import mainjs from "./files/main.js";
 import inquirer from 'inquirer'
 import fs from "fs-extra"
 import path from "path"
@@ -16,7 +16,8 @@ export default async (info) => {
    const files = [
       await packageJson(info),
       await gitignore(info),
-      await readmeMd(info)
+      await readmeMd(info),
+      await mainjs(info),
    ];
 
    switch (info.template) {

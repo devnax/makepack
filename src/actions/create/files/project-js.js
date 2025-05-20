@@ -1,10 +1,10 @@
 export default async () => {
   const content = `
-function add(a, b) {
+function sum(a, b) {
   return a + b;
 }
 
-export default add
+export default sum
   `
   return {
     content,
