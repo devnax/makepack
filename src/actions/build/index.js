@@ -145,7 +145,7 @@ const build = async (args) => {
       }
 
       if (args.declaration) {
-         pkgjson.types = `index.d.ts`;
+         pkgjson.types = `./index.d.ts`;
       }
 
       fs.writeFileSync(path.join(outdir, 'package.json'), JSON.stringify(pkgjson, null, 2));
