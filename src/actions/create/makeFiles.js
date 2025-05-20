@@ -1,7 +1,6 @@
 // import makepack from "./files/makepack.js";
 import packageJson from "./files/package-json.js";
 import gitignore from "./files/gitignore.js";
-import App from "./files/App.js";
 import tsconfig from "./files/tsconfig.js";
 import projectJs from "./files/project-js.js";
 import projectJsx from "./files/project-jsx.js";
@@ -17,7 +16,6 @@ export default async (info) => {
    const files = [
       await packageJson(info),
       await gitignore(info),
-      await App(info),
       await readmeMd(info)
    ];
 
@@ -41,9 +39,11 @@ export default async (info) => {
       files.push(await tsconfig(info))
    }
 
+   const rootdir = path.join(process.cwd(), info.pdir)
+
    for (let file of files) {
       // check if the file exists
-      if (fs.existsSync(path.join(info.cwd, file.filename))) {
+      if (fs.existsSync(path.join(rootdir, file.filename))) {
          const { overwrite } = await inquirer.prompt([
             {
                type: "confirm",
@@ -55,10 +55,10 @@ export default async (info) => {
          if (!overwrite) {
             continue
          } else {
-            fs.removeSync(path.join(info.cwd, file.filename))
+            fs.removeSync(path.join(rootdir, file.filename))
          }
       }
 
-      fs.writeFileSync(path.join(info.cwd, file.filename), file.content)
+      fs.writeFileSync(path.join(rootdir, file.filename), file.content)
    }
 }

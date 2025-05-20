@@ -9,9 +9,6 @@ import ts from 'typescript'
 const eBuild = async (ebconfig) => {
 
    await esbuild.build({
-      format: "esm",
-      sourcemap: true,
-      minify: false,
       jsx: 'automatic',
       ...ebconfig,
       outExtension: { '.js': ebconfig.format === "esm" ? '.mjs' : ".cjs" },
@@ -53,7 +50,7 @@ const build = async (args) => {
    fs.mkdirSync(outdir)
 
    const spinner = ora("Generating a production build for the package...").start();
-   const files = await glob("test/**/*.{tsx,ts,js,jsx}") || [];
+   const files = await glob("src/**/*.{tsx,ts,js,jsx}") || [];
    const entryPoints = files.map(entry => path.join(process.cwd(), entry));
    let batchSize = args.format === 'default' ? 300 : 500;
 
@@ -64,11 +61,11 @@ const build = async (args) => {
       platform: args.platform,
       target: args.target,
    }
+
    for (let i = 0; i < entryPoints.length; i += batchSize) {
       const batch = entryPoints.slice(i, i + batchSize);
       let config = {
          ...ebconfig,
-         format: "",
          entryPoints: batch,
       }
       if (args.format === 'default') {
@@ -134,13 +131,34 @@ const build = async (args) => {
    }
    spinner.text = "Copying package.json and readme.md files..."
 
-   fs.copyFileSync(path.join(process.cwd(), '/package.json'), path.join(outdir, `/package.json`))
+   // update package.json to include the .mpack directory
+   const pkgPath = path.join(process.cwd(), 'package.json');
+   if (fs.existsSync(pkgPath)) {
+      const pkgjson = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+      if (args.format === 'default') {
+         pkgjson.main = "./index.cjs";
+         pkgjson.module = "./index.mjs";
+         pkgjson.types = './index.d.ts'
+      } else {
+         let t = args.format === 'mjs' ? 'module' : 'main';
+         pkgjson[t] = `./index.${args.format}`;
+      }
+
+      if (args.declaration) {
+         pkgjson.types = `index.${args.format}.d.ts`;
+      }
+
+      fs.writeFileSync(path.join(outdir, 'package.json'), JSON.stringify(pkgjson, null, 2));
+   } else {
+      spinner.fail("package.json not found!");
+      return;
+   }
+
    fs.copyFileSync(path.join(process.cwd(), '/readme.md'), path.join(outdir, `/readme.md`))
    spinner.succeed("package.json and readme.md files copied successfully!")
    console.log(chalk.green(`\nBuild completed successfully!`));
    console.log(`\nTo publish your package to npm:`);
    console.log(`${chalk.green(`npm run publish`)} or navigate to the ${chalk.green(`.mpack`)} directory and run ${chalk.green(`npm publish`)}`);
-
 }
 
 export default build

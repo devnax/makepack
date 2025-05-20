@@ -17,14 +17,14 @@ const server = async () => {
    }
 
    const mpack = path.join(process.cwd(), '.mpack');
-   const userExpressFile = path.join(mpack, 'uxp.js')
-   if (fs.existsSync(userExpressFile)) {
+   const uxp = path.join(mpack, 'uxp.js')
+   if (fs.existsSync(uxp)) {
       // load user-express.js based on type
       if (type === 'module') {
-         const { default: userExpress } = await import(userExpressFile);
+         const { default: userExpress } = await import(uxp);
          userExpress(app);
       } else {
-         const userExpress = require(userExpressFile).default;
+         const userExpress = require(uxp).default;
          userExpress(app);
       }
    }

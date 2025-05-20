@@ -1,4 +1,4 @@
-export default async (args) => {
+export default async () => {
   const content = `
 function add(a: number, b: number): number {
   return a + b;
@@ -6,6 +6,6 @@ function add(a: number, b: number): number {
 export default add`
   return {
     content,
-    filename: `${args.sourceDir}/${args.sourceEntry}`
+    filename: `src/index.ts`
   }
 }

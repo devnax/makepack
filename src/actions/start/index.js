@@ -37,7 +37,6 @@ const start = async (args) => {
    // create a folder call .mpack
    const mpack = path.join(process.cwd(), '.mpack')
    if (fs.existsSync(mpack)) {
-      // remove .mpack folder
       fs.rmSync(mpack, { recursive: true, force: true });
    }
    fs.mkdirSync(mpack)
@@ -54,11 +53,11 @@ const start = async (args) => {
       }
    }
 
-   const uExpressjs = path.join(process.cwd(), 'express.js')
-   const uExpressts = path.join(process.cwd(), 'express.ts')
+   const uxpjs = path.join(process.cwd(), 'express.js')
+   const uxpts = path.join(process.cwd(), 'express.ts')
 
-   if (fs.existsSync(uExpressjs) || fs.existsSync(uExpressts)) {
-      let filename = fs.existsSync(uExpressjs) ? "express.js" : "express.ts";
+   if (fs.existsSync(uxpjs) || fs.existsSync(uxpts)) {
+      let filename = fs.existsSync(uxpjs) ? "express.js" : "express.ts";
       let outfile = path.join(mpack, 'uxp.js');
 
       const ctx = await esbuild.context({
@@ -86,10 +85,10 @@ const start = async (args) => {
 
    let server = startServer();
 
-   const userExpress = path.join(mpack, 'uxp.js')
+   const uxp = path.join(mpack, 'uxp.js')
 
-   if (fs.existsSync(userExpress)) {
-      const watcher = chokidar.watch(userExpress, {
+   if (fs.existsSync(uxp)) {
+      const watcher = chokidar.watch(uxp, {
          persistent: true,
          ignoreInitial: true,
       });

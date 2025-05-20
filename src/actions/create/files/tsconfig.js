@@ -23,7 +23,7 @@ export default async () => {
       "include": ["src"],
       "exclude": [
          "node_modules",
-         "build"
+         ".mpack",
       ]
    }
 

@@ -1,14 +1,13 @@
 import path from 'path'
 import { execSync, logger } from '../../helpers.js'
-import makepackConfig from '../../makepack-config.js'
 import fs from 'fs-extra'
 
 const publish = async () => {
-   const { build } = await makepackConfig()
-   const buildDir = path.join(process.cwd(), build.outdir)
+   const buildDir = path.join(process.cwd(), '.mpack')
+   const packageJsonPath = path.join(buildDir, 'package.json')
    const exists = fs.existsSync(buildDir)
-   if (!exists) {
-      logger.error(`Build directory ${buildDir} does not exist. Please build the project first`)
+   if (!exists || !fs.existsSync(packageJsonPath)) {
+      logger.error(`Project is not built yet. Please build the project first.`)
       process.exit(1)
    }
 

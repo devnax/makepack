@@ -1,7 +1,8 @@
-export default async (args) => {
+export default async () => {
   const content = `import React, { useState } from 'react';
+import { createRoot } from 'react-dom/client';
 
-const Count = () => {
+const App = () => {
   const [count, setCount] = useState(0);
   const increment = () => setCount(prevCount => prevCount + 1);
   const decrement = () => setCount(prevCount => prevCount - 1);
@@ -42,10 +43,14 @@ const styles = {
   },
 };
 
-export default Count;
+const rootEle = document.getElementById('root')
+if (rootEle) {
+  const root = createRoot(rootEle);
+  root.render(<App />);
+}
   `
   return {
     content,
-    filename: `${args.sourceDir}/${args.sourceEntry}`
+    filename: `src/index.jsx`
   }
 }

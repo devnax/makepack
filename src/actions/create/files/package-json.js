@@ -3,9 +3,12 @@ export default async (info) => {
    let dependencies = {}
    let devDependencies = {
       "makepack": "latest",
-      "react": "^19.0.0",
-      "react-dom": "^19.0.0",
       "express": "latest"
+   }
+
+   if (info.template.includes("react")) {
+      dependencies["react"] = "^19.0.0"
+      dependencies["react-dom"] = "^19.0.0"
    }
 
    if (info.template.includes("typescript")) {
@@ -15,17 +18,15 @@ export default async (info) => {
       devDependencies["@types/express"] = "latest"
    }
 
-   let main = info.sourceEntry.split('.')
-   main.pop()
-
    const json = {
-      name: info.projectDirName,
+      name: info.pdir,
       version: "1.0.0",
-      main: `./cjs/index.js`,
-      module: `./index.js`,
-      types: `./types/index.d.ts`,
+      main: `./index.cjs`,
+      module: `./index.mjs`,
+      types: `./index.d.ts`,
       description: "",
       keywords: [],
+      sideEffects: false,
       // "exports": {
       //    ".": {
       //       "types": "./types/index.d.ts",
@@ -42,7 +43,7 @@ export default async (info) => {
       scripts: {
          "start": "makepack start",
          "build": "makepack build",
-         "build:publish": "makepack publish"
+         "publish": "makepack publish"
       },
       dependencies,
       devDependencies
