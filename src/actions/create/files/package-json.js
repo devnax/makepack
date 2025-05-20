@@ -7,8 +7,8 @@ export default async (info) => {
    }
 
    if (info.template.includes("react")) {
-      dependencies["react"] = "^19.0.0"
-      dependencies["react-dom"] = "^19.0.0"
+      devDependencies["react"] = "^19.0.0"
+      devDependencies["react-dom"] = "^19.0.0"
    }
 
    if (info.template.includes("typescript")) {
@@ -43,7 +43,7 @@ export default async (info) => {
       scripts: {
          "start": "makepack start",
          "build": "makepack build",
-         "publish": "makepack publish"
+         "release": "makepack release"
       },
       dependencies,
       devDependencies

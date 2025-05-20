@@ -4,7 +4,7 @@ import { Command } from "commander";
 import start from "./actions/start/index.js";
 import build from "./actions/build/index.js";
 import create from "./actions/create/index.js";
-import publish from "./actions/publish/index.js";
+import release from "./actions/release/index.js";
 
 const program = new Command();
 
@@ -34,8 +34,8 @@ program
    .action(build);
 
 program
-   .command("publish")
-   .description("Publish it to the npm repository")
-   .action(publish);
+   .command("release")
+   .description("Release it to the npm repository")
+   .action(release);
 
 program.parse();

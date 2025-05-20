@@ -2,7 +2,7 @@ import path from 'path'
 import { execSync, logger } from '../../helpers.js'
 import fs from 'fs-extra'
 
-const publish = async () => {
+const release = async () => {
    const buildDir = path.join(process.cwd(), '.mpack')
    const packageJsonPath = path.join(buildDir, 'package.json')
    const exists = fs.existsSync(buildDir)
@@ -11,10 +11,10 @@ const publish = async () => {
       process.exit(1)
    }
 
-   logger.info(`Publishing the production build to the npm repository...`)
+   logger.info(`Releaseing the production build to the npm repository...`)
    execSync(`npm publish`, {
       cwd: buildDir
    })
 }
 
-export default publish
+export default release
