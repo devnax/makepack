@@ -6,17 +6,17 @@ import ora from 'ora'
 import { glob } from 'glob'
 import ts from 'typescript'
 
-const eBuild = async (ebconfig) => {
+const eBuild = async (conf) => {
 
    await esbuild.build({
       jsx: 'automatic',
-      ...ebconfig,
-      outExtension: { '.js': ebconfig.format === "esm" ? '.mjs' : ".cjs" },
+      ...conf,
+      // outExtension: { '.js': ebconfig.format === 'esm' ? '.mjs' : '.cjs' },
       loader: {
          '.ts': 'ts',
          '.tsx': 'tsx'
       },
-      outdir: path.join(process.cwd(), '.mpack'),
+      outdir: path.join(process.cwd(), '.mpack', conf.format === 'esm' ? '' : conf.format),
    })
 }
 
@@ -161,7 +161,7 @@ const build = async (args) => {
    spinner.succeed("package.json and readme.md files copied successfully!")
    console.log(chalk.green(`\nBuild completed successfully!`));
    console.log(`\nTo publish your package to npm:`);
-   console.log(`${chalk.green(`npm run publish`)} or navigate to the ${chalk.green(`.mpack`)} directory and run ${chalk.green(`npm publish`)}`);
+   console.log(`${chalk.green(`npm run release`)} or navigate to the ${chalk.green(`.mpack`)} directory and run ${chalk.green(`npm publish`)}`);
 }
 
 export default build

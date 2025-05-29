@@ -27,23 +27,33 @@ export default async (info) => {
       description: "",
       keywords: [],
       sideEffects: false,
-      // "exports": {
-      //    ".": {
-      //       "types": "./types/index.d.ts",
-      //       "require": "./cjs/index.js",
-      //       "import": "./index.js",
-      //    },
-      //    "./types/*": "./types/*.d.ts",
-      //    "./cjs/*": "./cjs/*.js",
-      //    "./*": {
-      //       "import": "./*.js",
-      //       "require": "./cjs/*.js"
-      //    }
-      // },
       scripts: {
          "start": "makepack start",
          "build": "makepack build",
          "release": "makepack release"
+      },
+      exports: {
+         ".": {
+            "require": {
+               "types": "./index.d.ts",
+               "default": "./cjs/index.js"
+            },
+            "import": {
+               "types": "./index.d.ts",
+               "default": "./index.js"
+            }
+         },
+         "./*": {
+            "require": {
+               "types": "./*.d.ts",
+               "default": "./cjs/*.js"
+            },
+            "import": {
+               "types": "./*.d.ts",
+               "default": "./*.js"
+            }
+         },
+         "./cjs": null,
       },
       dependencies,
       devDependencies
