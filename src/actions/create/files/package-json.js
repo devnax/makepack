@@ -21,8 +21,8 @@ export default async (info) => {
    const json = {
       name: info.pdir,
       version: "1.0.0",
-      main: `./index.cjs`,
-      module: `./index.mjs`,
+      main: `./cjs/index.js`,
+      module: `./index.js`,
       types: `./index.d.ts`,
       description: "",
       keywords: [],
