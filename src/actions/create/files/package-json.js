@@ -53,7 +53,7 @@ export default async (info) => {
                "default": "./*.js"
             }
          },
-         "./cjs": null,
+         "./cjs": null
       },
       dependencies,
       devDependencies

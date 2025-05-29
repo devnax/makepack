@@ -135,22 +135,8 @@ const build = async (args) => {
    const pkgPath = path.join(process.cwd(), 'package.json');
    if (fs.existsSync(pkgPath)) {
       const pkgjson = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-      if (args.format === 'default') {
-         pkgjson.main = "./index.cjs";
-         pkgjson.module = "./index.mjs";
-         pkgjson.types = './index.d.ts'
-      } else {
-         let t = args.format === 'mjs' ? 'module' : 'main';
-         pkgjson[t] = `./index.${args.format}`;
-      }
-
-      if (args.declaration) {
-         pkgjson.types = `./index.d.ts`;
-      }
-
       delete pkgjson.scripts
       delete pkgjson.type
-
       fs.writeFileSync(path.join(outdir, 'package.json'), JSON.stringify(pkgjson, null, 2));
    } else {
       spinner.fail("package.json not found!");
