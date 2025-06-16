@@ -1,10 +1,8 @@
-import { execSync, logger } from "../../helpers.js"
+import { execSync, concolor, logger } from "../../helpers.js"
 import makeFiles from "./makeFiles.js"
 import path from 'path'
 import inquirer from 'inquirer'
-import figlet from 'figlet'
 import fs from "fs-extra"
-import chalk from 'chalk';
 const cwd = process.cwd()
 const cwdFolder = cwd.split(path.sep).pop()
 
@@ -89,16 +87,10 @@ const create = async () => {
 
    logger.success("Project setup complete!", "")
    if (isCurrentDir) {
-      console.log(`Run the development server: ${chalk.blue("npm start")}\nEnjoy your new project! 😊`);
+      logger.info(`Run the development server: ${concolor.yellow("npm start")}\nEnjoy your new project! 😊`);
    } else {
-      console.log(`Navigate to your project directory:\n${chalk.blue("cd " + info.pdir, false)} and Run the development server: ${chalk.blue("npm start")}\nEnjoy your new project! 😊`);
+      logger.info(`Navigate to your project directory:\n${concolor.yellow("cd " + info.pdir, false)} and Run the development server: ${concolor.yellow("npm start")}\nEnjoy your new project! 😊`);
    }
-
-   figlet("Makepack CLI", function (err, data) {
-      if (!err) {
-         console.log(data);
-      }
-   });
 }
 
 export default create

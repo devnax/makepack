@@ -21,8 +21,8 @@ export default async (info) => {
    const json = {
       name: info.pdir,
       version: "1.0.0",
-      main: `./cjs/index.js`,
-      module: `./index.js`,
+      main: `./index.js`,
+      module: `./esm/index.js`,
       types: `./index.d.ts`,
       description: "",
       keywords: [],
@@ -36,24 +36,24 @@ export default async (info) => {
          ".": {
             "require": {
                "types": "./index.d.ts",
-               "default": "./cjs/index.js"
+               "default": "./index.js"
             },
             "import": {
                "types": "./index.d.ts",
-               "default": "./index.js"
+               "default": "./esm/index.js"
             }
          },
          "./*": {
             "require": {
                "types": "./*.d.ts",
-               "default": "./cjs/*.js"
+               "default": "./*.js"
             },
             "import": {
                "types": "./*.d.ts",
-               "default": "./*.js"
+               "default": "./esm/*.js"
             }
          },
-         "./cjs": null
+         "./esm": null
       },
       dependencies,
       devDependencies

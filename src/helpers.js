@@ -1,7 +1,4 @@
 import child_process from 'child_process'
-import chalk from 'chalk';
-import figures from 'figures';
-
 export const execSync = (command, option = {}) => {
    try {
       const result = child_process.execSync(command, {
@@ -17,21 +14,59 @@ export const execSync = (command, option = {}) => {
 };
 
 
+export const conicon = {
+   info: 'ℹ',
+   success: '✔',
+   warning: '⚠',
+   error: '✖',
+   dot: '․',
+   pointer: '❯',
+   arrowRight: '→',
+   arrowDown: '↓',
+   arrowUp: '↑',
+   star: '★',
+   check: '✅',
+   cross: '❌',
+   question: '?',
+   ellipsis: '…',
+   clock: '⏱',
+   hourglass: '⏳',
+   rocket: '🚀',
+   bug: '🐞',
+};
+
+export const concolor = {
+   reset: (str) => `\x1b[0m${str}\x1b[0m`,
+   red: (str) => `\x1b[31m${str}\x1b[0m`,
+   green: (str) => `\x1b[32m${str}\x1b[0m`,
+   yellow: (str) => `\x1b[33m${str}\x1b[0m`,
+   blue: (str) => `\x1b[34m${str}\x1b[0m`,
+   magenta: (str) => `\x1b[35m${str}\x1b[0m`,
+   cyan: (str) => `\x1b[36m${str}\x1b[0m`,
+   white: (str) => `\x1b[37m${str}\x1b[0m`,
+   bold: (str) => `\x1b[1m${str}\x1b[0m`,
+   dim: (str) => `\x1b[2m${str}\x1b[0m`,
+   underline: (str) => `\x1b[4m${str}\x1b[0m`,
+};
+
 
 export const logger = {
+   log: (message, prefix, icon, color) => {
+      let _color = concolor[color] || concolor.reset;
+      let _icon = conicon[icon] || '';
+      prefix = prefix ? _color(concolor.bold(prefix)) : "";
+      console.log(`${_icon ? _color(_icon) + " " : ""}${prefix} ${message}`);
+   },
    info: (message, prefix = 'INFO', icon = true) => {
-      console.log(`${icon ? chalk.blue(figures.info) + " " : ""}${chalk.cyan.bold(prefix)} ${message}`);
+      logger.log(message, prefix, icon ? 'info' : '', 'blue');
    },
    success: (message, prefix = 'SUCCESS:', icon = true) => {
-      console.log(`${icon ? chalk.green(figures.tick) + " " : ""}${chalk.green.bold(prefix)} ${message}`);
+      logger.log(message, prefix, icon ? 'success' : '', 'green');
    },
    warning: (message, prefix = 'WARNING:', icon = true) => {
-      console.log(`${icon ? chalk.yellow(figures.warning) + " " : ""}${chalk.yellow.bold(prefix)} ${message}`);
+      logger.log(message, prefix, icon ? 'warning' : '', 'yellow');
    },
    error: (message, prefix = 'ERROR:', icon = true) => {
-      console.log(`${icon ? chalk.red(figures.cross) + " " : ""}${chalk.red.bold(prefix)} ${message}`);
-   },
-   custom: (icon, color, label, message) => {
-      console.log(`${chalk[color](icon)} ${chalk[color].bold(`${label}:`)} ${message}`);
-   },
+      logger.log(message, prefix, icon ? 'error' : '', 'red');
+   }
 };

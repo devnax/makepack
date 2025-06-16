@@ -28,3 +28,4 @@ build
 /express.*
 /.server
 .mpack
+main.tsx

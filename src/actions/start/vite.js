@@ -55,6 +55,7 @@ const viteSetup = async (app) => {
          next(e);
       }
    });
+   return vite;
 }
 
 

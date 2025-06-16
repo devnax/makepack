@@ -26,7 +26,7 @@ program
    .description("Build the project")
    .option("-f, --format <format>", "Output format (cjs, esm, umd, default)", "default")
    .option("-b, --bundle <bundle>", "Bundle the project", false)
-   .option("-m, --minify <minify>", "Minify the output", true)
+   .option("-m, --minify <minify>", "Minify the output", false)
    .option("-s, --sourcemap <sourcemap>", "Generate sourcemaps", true)
    .option("-t, --target <target>", "Target ECMAScript version", "es2020")
    .option("-p, --platform <platform>", "Platform to target (node, browser)", "")

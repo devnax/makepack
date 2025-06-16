@@ -1,6 +1,6 @@
 {
   "name": "makepack",
-  "version": "1.6.8",
+  "version": "1.6.10",
   "type": "module",
   "description": "A CLI tool to create, build, and manage JavaScript, TypeScript, React, and React-TypeScript libraries for npm projects.",
   "files": [
@@ -30,19 +30,21 @@
     "build": "node ./src/index.js build"
   },
   "dependencies": {
+    "@rollup/plugin-commonjs": "^28.0.5",
+    "@rollup/plugin-node-resolve": "^16.0.1",
     "chalk": "^5.4.1",
     "chokidar": "^4.0.3",
     "commander": "^12.1.0",
-    "cosmiconfig": "^9.0.0",
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.25.5",
     "express": "^4.21.1",
-    "figlet": "^1.8.0",
-    "figures": "^6.1.0",
     "fs-extra": "^11.2.0",
     "glob": "^11.0.0",
     "inquirer": "^12.1.0",
+    "lodash.debounce": "^4.0.8",
+    "madge": "^8.0.0",
     "ora": "^8.1.1",
-    "typescript": "^5.7.2",
+    "rollup": "^4.43.0",
+    "rollup-plugin-dts": "^6.2.1",
     "vite": "^6.0.2"
   },
   "keywords": [
@@ -55,8 +57,11 @@
     "npm-package"
   ],
   "devDependencies": {
+    "@rollup/plugin-typescript": "^12.1.2",
     "@types/fs-extra": "^11.0.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "@types/react": "^19.1.8",
+    "react": "^19.1.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.8.3"
   }
 }

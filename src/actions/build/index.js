@@ -1,22 +1,19 @@
 import esbuild from 'esbuild'
 import fs from 'fs-extra'
 import path from 'path'
-import chalk from 'chalk'
 import ora from 'ora'
 import { glob } from 'glob'
 import ts from 'typescript'
+import { concolor, logger } from '../../helpers.js'
+import bundler from './bundler.js'
 
 const eBuild = async (conf) => {
-
+   const is_cjs = conf.format === 'cjs';
    await esbuild.build({
       jsx: 'automatic',
+      platform: "node",
       ...conf,
-      // outExtension: { '.js': ebconfig.format === 'esm' ? '.mjs' : '.cjs' },
-      loader: {
-         '.ts': 'ts',
-         '.tsx': 'tsx'
-      },
-      outdir: path.join(process.cwd(), '.mpack', conf.format === 'esm' ? '' : conf.format),
+      outdir: path.join(process.cwd(), '.mpack', !is_cjs ? '' : conf.format),
    })
 }
 
@@ -30,6 +27,8 @@ const build = async (args) => {
    --target=es2020, 
    */
 
+   await bundler("esm");
+   return
 
    let printBool = (f) => typeof args[f] === 'string' ? (args[f] === 'true') : args[f];
 
@@ -39,7 +38,7 @@ const build = async (args) => {
       minify: printBool('minify'),
       sourcemap: printBool('sourcemap'),
       platform: args.platform || "",
-      target: args.target || "es2020",
+      // target: args.target || "es2020",
       declaration: printBool('declaration'),
    }
 
@@ -49,7 +48,7 @@ const build = async (args) => {
    }
    fs.mkdirSync(outdir)
 
-   const spinner = ora("Generating a production build for the package...").start();
+   const spinner = ora("Generating a production build for the package...\n").start();
    const files = await glob("src/**/*.{tsx,ts,js,jsx}") || [];
    const entryPoints = files.map(entry => path.join(process.cwd(), entry));
    let batchSize = args.format === 'default' ? 300 : 500;
@@ -70,12 +69,12 @@ const build = async (args) => {
       }
       if (args.format === 'default') {
          await eBuild({ ...config, format: "esm" });
-         spinner.succeed('ESM build generated successfully!');
+         logger.success('ESM build generated successfully!', "ESM:");
          await eBuild({ ...config, format: "cjs" });
-         spinner.succeed('CJS build generated successfully!');
+         logger.success('CJS build generated successfully!', "CJS:");
       } else {
          await eBuild({ ...config, format: args.format });
-         spinner.succeed(`${args.format} build generated successfully!`);
+         logger.success(`${args.format} build generated successfully!`, `${args.format.toUpperCase()}:`);
       }
    }
 
@@ -91,7 +90,7 @@ const build = async (args) => {
          );
 
          if (!parsedConfig) {
-            console.error("❌ Error parsing tsconfig.json");
+            logger.error("Error parsing tsconfig.json");
             process.exit(1);
          } else {
             tsconfig = parsedConfig.options;
@@ -120,13 +119,13 @@ const build = async (args) => {
             const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
             if (diagnostic.file) {
                const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-               spinner.fail(`Error at ${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
+               logger.error(`Error at ${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
             } else {
-               spinner.fail(`Error: ${message}`);
+               logger.error(`${message}`);
             }
          });
       } else {
-         spinner.succeed("TypeScript declaration files generated successfully!")
+         logger.success("declaration files generated successfully!", "TYPESCRIPT:");
       }
    }
    spinner.text = "Copying package.json and readme.md files..."
@@ -136,18 +135,18 @@ const build = async (args) => {
    if (fs.existsSync(pkgPath)) {
       const pkgjson = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
       delete pkgjson.scripts
-      delete pkgjson.type
+      // delete pkgjson.type
       fs.writeFileSync(path.join(outdir, 'package.json'), JSON.stringify(pkgjson, null, 2));
    } else {
-      spinner.fail("package.json not found!");
+      logger.error("package.json not found!");
       return;
    }
 
    fs.copyFileSync(path.join(process.cwd(), '/readme.md'), path.join(outdir, `/readme.md`))
-   spinner.succeed("package.json and readme.md files copied successfully!")
-   console.log(chalk.green(`\nBuild completed successfully!`));
-   console.log(`\nTo publish your package to npm:`);
-   console.log(`${chalk.green(`npm run release`)} or navigate to the ${chalk.green(`.mpack`)} directory and run ${chalk.green(`npm publish`)}`);
+   logger.success(`${concolor.yellow('package.json')} and ${concolor.yellow('readme.md')} files copied successfully!`, "COPY:");
+   logger.success(`completed successfully!`, 'COMPLETE:');
+   logger.info(`publish your package to npm: ${concolor.yellow(`npm run release`)} or navigate to the ${concolor.yellow(`.mpack`)} directory and run ${concolor.yellow(`npm publish`)}\n`, "PUBLISH:");
+   spinner.stop();
 }
 
 export default build
