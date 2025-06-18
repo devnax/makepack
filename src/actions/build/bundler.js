@@ -89,7 +89,7 @@ async function build(args, spinner) {
          plugins: [dts()],
       });
       await bundlets.write({
-         ...esm,
+         format: "esm",
          dir: path.join(args.outdir),
       });
       await bundlets.close();
