@@ -18,6 +18,12 @@ async function bundler(args, spinner) {
       ...Object.keys(pkg.peerDependencies ?? {}),
    ];
 
+   // remove tslib
+   const tslibIndex = external.indexOf("tslib");
+   if (tslibIndex !== -1) {
+      external.splice(tslibIndex, 1);
+   }
+
    const isTs = args.entry.endsWith(".ts")
 
    const config = {
