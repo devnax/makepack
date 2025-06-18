@@ -22,10 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-build
 /makepack.config.js
 /App.*
 /express.*
-/.server
 .mpack
 main.tsx
+tsconfig.json

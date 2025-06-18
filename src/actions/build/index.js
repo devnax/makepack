@@ -1,141 +1,64 @@
-import esbuild from 'esbuild'
 import fs from 'fs-extra'
 import path from 'path'
 import ora from 'ora'
-import { glob } from 'glob'
-import ts from 'typescript'
 import { concolor, logger } from '../../helpers.js'
 import bundler from './bundler.js'
 
-const eBuild = async (conf) => {
-   const is_cjs = conf.format === 'cjs';
-   await esbuild.build({
-      jsx: 'automatic',
-      platform: "node",
-      ...conf,
-      outdir: path.join(process.cwd(), '.mpack', !is_cjs ? '' : conf.format),
-   })
-}
-
 const build = async (args) => {
    /* args 
-   --format=default 
+   --format=both 
    --bundle=true, 
    --minify=false, 
    --sourcemap=true, 
-   --platform=node, 
-   --target=es2020, 
+   --declaration=true,
    */
-
-   await bundler("esm");
-   return
 
    let printBool = (f) => typeof args[f] === 'string' ? (args[f] === 'true') : args[f];
 
+   const outdir = path.join(process.cwd(), '.mpack');
+   const rootdir = path.join(process.cwd(), 'src');
+
+   let entry = '';
+   let entryts = path.join(rootdir, 'index.ts');
+   let entryjs = path.join(rootdir, 'index.js');
+   let entrytsx = path.join(rootdir, 'index.tsx');
+   let entryjsx = path.join(rootdir, 'index.jsx');
+
+   if (fs.existsSync(entryts)) {
+      entry = "index.ts";
+   } else if (fs.existsSync(entryjs)) {
+      entry = "index.js";
+   } else if (fs.existsSync(entrytsx)) {
+      entry = "index.tsx";
+   } else if (fs.existsSync(entryjsx)) {
+      entry = "index.jsx";
+   } else {
+      throw new Error("No entry file found in src directory. Please provide an index.ts or index.js file.");
+   }
+
    args = {
-      format: args.format || "default",
+      format: args.format || "both",
       bundle: printBool('bundle'),
       minify: printBool('minify'),
       sourcemap: printBool('sourcemap'),
-      platform: args.platform || "",
-      // target: args.target || "es2020",
       declaration: printBool('declaration'),
+      outdir,
+      rootdir,
+      entry: path.join(rootdir, entry),
    }
 
-   const outdir = path.join(process.cwd(), '.mpack');
    if (fs.existsSync(outdir)) {
       fs.rmSync(outdir, { recursive: true, force: true });
    }
    fs.mkdirSync(outdir)
-
-   const spinner = ora("Generating a production build for the package...\n").start();
-   const files = await glob("src/**/*.{tsx,ts,js,jsx}") || [];
-   const entryPoints = files.map(entry => path.join(process.cwd(), entry));
-   let batchSize = args.format === 'default' ? 300 : 500;
-
-   let ebconfig = {
-      bundle: args.bundle,
-      minify: args.minify,
-      sourcemap: args.sourcemap,
-      platform: args.platform,
-      target: args.target,
-   }
-
-   for (let i = 0; i < entryPoints.length; i += batchSize) {
-      const batch = entryPoints.slice(i, i + batchSize);
-      let config = {
-         ...ebconfig,
-         entryPoints: batch,
-      }
-      if (args.format === 'default') {
-         await eBuild({ ...config, format: "esm" });
-         logger.success('ESM build generated successfully!', "ESM:");
-         await eBuild({ ...config, format: "cjs" });
-         logger.success('CJS build generated successfully!', "CJS:");
-      } else {
-         await eBuild({ ...config, format: args.format });
-         logger.success(`${args.format} build generated successfully!`, `${args.format.toUpperCase()}:`);
-      }
-   }
-
-
-   if (args.declaration) {
-      const tsconfigPath = path.resolve(process.cwd(), "tsconfig.json");
-      let tsconfig = {};
-      if (fs.existsSync(tsconfigPath)) {
-         const parsedConfig = ts.getParsedCommandLineOfConfigFile(
-            tsconfigPath,
-            {},
-            ts.sys
-         );
-
-         if (!parsedConfig) {
-            logger.error("Error parsing tsconfig.json");
-            process.exit(1);
-         } else {
-            tsconfig = parsedConfig.options;
-         }
-      }
-
-      tsconfig = {
-         allowJs: true,
-         target: ts.ScriptTarget.ESNext, // Ensure it's an enum
-         skipLibCheck: true,
-         moduleResolution: ts.ModuleResolutionKind.Node10,
-         ...tsconfig, // Preserve root tsconfig settings
-         outDir: outdir,
-         declaration: true,
-         emitDeclarationOnly: true,
-         noEmit: false,
-      };
-
-      spinner.text = "Generating TypeScript declarations..."
-      const program = ts.createProgram(files, tsconfig);
-      const emitResult = program.emit();
-      const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
-
-      if (diagnostics.length > 0) {
-         diagnostics.forEach(diagnostic => {
-            const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-            if (diagnostic.file) {
-               const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-               logger.error(`Error at ${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
-            } else {
-               logger.error(`${message}`);
-            }
-         });
-      } else {
-         logger.success("declaration files generated successfully!", "TYPESCRIPT:");
-      }
-   }
+   const spinner = ora("✨ Bundling your package..\n").start();
+   await bundler(args, spinner);
    spinner.text = "Copying package.json and readme.md files..."
-
-   // update package.json to include the .mpack directory
    const pkgPath = path.join(process.cwd(), 'package.json');
    if (fs.existsSync(pkgPath)) {
       const pkgjson = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
       delete pkgjson.scripts
-      // delete pkgjson.type
+      delete pkgjson.type
       fs.writeFileSync(path.join(outdir, 'package.json'), JSON.stringify(pkgjson, null, 2));
    } else {
       logger.error("package.json not found!");
@@ -143,9 +66,9 @@ const build = async (args) => {
    }
 
    fs.copyFileSync(path.join(process.cwd(), '/readme.md'), path.join(outdir, `/readme.md`))
-   logger.success(`${concolor.yellow('package.json')} and ${concolor.yellow('readme.md')} files copied successfully!`, "COPY:");
-   logger.success(`completed successfully!`, 'COMPLETE:');
-   logger.info(`publish your package to npm: ${concolor.yellow(`npm run release`)} or navigate to the ${concolor.yellow(`.mpack`)} directory and run ${concolor.yellow(`npm publish`)}\n`, "PUBLISH:");
+   spinner.succeed(concolor.bold(concolor.green(`Build successfully completed\n`)));
+   console.log(concolor.bold(`To publish your package to npm run:`));
+   console.log(`${concolor.yellow(`\`npm run release\``)} Or navigate to \`.mpack\` and run: ${concolor.yellow(`\`npm publish\`\n`)}`);
    spinner.stop();
 }
 

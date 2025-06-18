@@ -24,12 +24,10 @@ program
 program
    .command("build")
    .description("Build the project")
-   .option("-f, --format <format>", "Output format (cjs, esm, umd, default)", "default")
+   .option("-f, --format <format>", "Output format (cjs, esm, both)", "both")
    .option("-b, --bundle <bundle>", "Bundle the project", false)
    .option("-m, --minify <minify>", "Minify the output", false)
    .option("-s, --sourcemap <sourcemap>", "Generate sourcemaps", true)
-   .option("-t, --target <target>", "Target ECMAScript version", "es2020")
-   .option("-p, --platform <platform>", "Platform to target (node, browser)", "")
    .option("-d, --declaration <declaration>", "Generate TypeScript declaration files", true)
    .action(build);
 

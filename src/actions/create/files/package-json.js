@@ -22,7 +22,7 @@ export default async (info) => {
       name: info.pdir,
       version: "1.0.0",
       main: `./index.js`,
-      module: `./esm/index.js`,
+      module: `./index.mjs`,
       types: `./index.d.ts`,
       description: "",
       keywords: [],
@@ -32,28 +32,12 @@ export default async (info) => {
          "build": "makepack build",
          "release": "makepack release"
       },
-      exports: {
+      "exports": {
          ".": {
-            "require": {
-               "types": "./index.d.ts",
-               "default": "./index.js"
-            },
-            "import": {
-               "types": "./index.d.ts",
-               "default": "./esm/index.js"
-            }
-         },
-         "./*": {
-            "require": {
-               "types": "./*.d.ts",
-               "default": "./*.js"
-            },
-            "import": {
-               "types": "./*.d.ts",
-               "default": "./esm/*.js"
-            }
-         },
-         "./esm": null
+            "import": "./index.mjs",
+            "require": "./index.js",
+            "types": "./index.d.ts"
+         }
       },
       dependencies,
       devDependencies

@@ -19,34 +19,15 @@ export const conicon = {
    success: '✔',
    warning: '⚠',
    error: '✖',
-   dot: '․',
-   pointer: '❯',
-   arrowRight: '→',
-   arrowDown: '↓',
-   arrowUp: '↑',
-   star: '★',
-   check: '✅',
-   cross: '❌',
-   question: '?',
-   ellipsis: '…',
-   clock: '⏱',
-   hourglass: '⏳',
-   rocket: '🚀',
-   bug: '🐞',
 };
 
 export const concolor = {
-   reset: (str) => `\x1b[0m${str}\x1b[0m`,
    red: (str) => `\x1b[31m${str}\x1b[0m`,
    green: (str) => `\x1b[32m${str}\x1b[0m`,
    yellow: (str) => `\x1b[33m${str}\x1b[0m`,
    blue: (str) => `\x1b[34m${str}\x1b[0m`,
-   magenta: (str) => `\x1b[35m${str}\x1b[0m`,
-   cyan: (str) => `\x1b[36m${str}\x1b[0m`,
-   white: (str) => `\x1b[37m${str}\x1b[0m`,
    bold: (str) => `\x1b[1m${str}\x1b[0m`,
    dim: (str) => `\x1b[2m${str}\x1b[0m`,
-   underline: (str) => `\x1b[4m${str}\x1b[0m`,
 };
 
 
