@@ -9,7 +9,7 @@ import dts from "rollup-plugin-dts";
 import json from '@rollup/plugin-json';
 import terser from "@rollup/plugin-terser";
 
-async function build(args, spinner) {
+async function bundler(args, spinner) {
    const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
    const external = [
       ...builtinModules,
@@ -96,4 +96,4 @@ async function build(args, spinner) {
    }
 }
 
-export default build;
+export default bundler;

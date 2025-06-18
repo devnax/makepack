@@ -13,6 +13,7 @@ import { logger, concolor } from '../../helpers.js';
 
 const projectRoot = process.cwd();
 const requireFn = createRequire(import.meta.url);
+const mpack = path.join(projectRoot, '.mpack');
 
 let server = null;
 let app = null;
@@ -81,11 +82,7 @@ async function bootServer(args) {
 
 
 let esbuildCtx = null;
-const mpack = path.join(projectRoot, '.mpack');
-if (fs.existsSync(mpack)) {
-   fs.rmSync(mpack, { recursive: true, force: true });
-}
-fs.mkdirSync(mpack, { recursive: true });
+
 const buildFile = path.join(mpack, `${randomUUID().substring(0, 15)}.js`);
 
 async function loadExp() {
@@ -156,6 +153,11 @@ async function getAllDependencies() {
 
 let watcher;
 async function startDevServer(args) {
+   if (fs.existsSync(mpack)) {
+      fs.rmSync(mpack, { recursive: true, force: true });
+   }
+   fs.mkdirSync(mpack, { recursive: true });
+
    await bootServer(args);
    const filesToWatch = await getAllDependencies();
    if (watcher) watcher.close();
