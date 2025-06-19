@@ -28,7 +28,10 @@ async function bind(args, spinner) {
       },
       plugins: [
          json(),
-         resolve(),
+         resolve({
+            extensions: ['.js', '.ts', '.jsx', '.tsx', '.json', '.mjs', '.cjs'],
+            browser: false
+         }),
          commonjs(),
          isTs ? typescript({
             target: "ES2017",
@@ -79,6 +82,20 @@ async function bind(args, spinner) {
       outputOptions = [esm];
    } else if (args.format === "cjs") {
       outputOptions = [cjs];
+   } else if (args.format === "iife") {
+      outputOptions = [{
+         ...esm,
+         format: "iife",
+         name: args.name || path.basename(args.entry, path.extname(args.entry)),
+         entryFileNames: '[name].js',
+      }];
+   } else if (args.format === "umd") {
+      outputOptions = [{
+         ...esm,
+         format: "umd",
+         name: args.name || path.basename(args.entry, path.extname(args.entry)),
+         entryFileNames: '[name].js',
+      }];
    }
 
    for (const output of outputOptions) {
