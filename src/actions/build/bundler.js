@@ -9,38 +9,37 @@ import dts from "rollup-plugin-dts";
 import json from '@rollup/plugin-json';
 import terser from "@rollup/plugin-terser";
 
-async function bundler(args, spinner) {
+async function bind(args, spinner) {
    const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
-   const external = [
+   const _external = [
       ...builtinModules,
       ...Object.keys(pkg.dependencies ?? {}),
       ...Object.keys(pkg.devDependencies ?? {}),
       ...Object.keys(pkg.peerDependencies ?? {}),
+      "tslib",
    ];
-
-   // remove tslib
-   const tslibIndex = external.indexOf("tslib");
-   if (tslibIndex !== -1) {
-      external.splice(tslibIndex, 1);
-   }
 
    const isTs = args.entry.endsWith(".ts")
 
    const config = {
       input: [args.entry],
-      external,
+      external: (id) => {
+         return !id.startsWith('.') && !id.startsWith('/') && !/^[A-Za-z]:\\/.test(id);
+      },
       plugins: [
          json(),
          resolve(),
          commonjs(),
          isTs ? typescript({
-            compilerOptions: {
-               "module": "ESNext",
-               "jsx": "react",
-               "strict": true,
-               "forceConsistentCasingInFileNames": true,
-               "esModuleInterop": true
-            },
+            target: "ES2017",
+            module: "ESNext",
+            jsx: "react",
+            strict: true,
+            forceConsistentCasingInFileNames: true,
+            esModuleInterop: true,
+            importHelpers: true,
+            moduleResolution: "node",
+            skipLibCheck: true,
             include: ["src/**/*.ts", "src/**/*.tsx"],
             exclude: ["node_modules", ".mpack"],
          }) : null,
@@ -102,4 +101,4 @@ async function bundler(args, spinner) {
    }
 }
 
-export default bundler;
+export default bind;
