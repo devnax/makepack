@@ -2,7 +2,7 @@ import { rollup } from "rollup";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
-import { builtinModules } from "module";
+// import { builtinModules } from "module";
 import fs from "fs";
 import path from "path";
 import dts from "rollup-plugin-dts";
@@ -10,14 +10,14 @@ import json from '@rollup/plugin-json';
 import terser from "@rollup/plugin-terser";
 
 async function bind(args, spinner) {
-   const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
-   const _external = [
-      ...builtinModules,
-      ...Object.keys(pkg.dependencies ?? {}),
-      ...Object.keys(pkg.devDependencies ?? {}),
-      ...Object.keys(pkg.peerDependencies ?? {}),
-      "tslib",
-   ];
+   // const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
+   // const _external = [
+   //    ...builtinModules,
+   //    ...Object.keys(pkg.dependencies ?? {}),
+   //    ...Object.keys(pkg.devDependencies ?? {}),
+   //    ...Object.keys(pkg.peerDependencies ?? {}),
+   //    "tslib",
+   // ];
 
    const isTs = args.entry.endsWith(".ts")
 
@@ -112,6 +112,8 @@ async function bind(args, spinner) {
       });
       await bundlets.write({
          format: "esm",
+         preserveModules: true,
+         preserveModulesRoot: args.rootdir,
          dir: path.join(args.outdir),
       });
       await bundlets.close();
