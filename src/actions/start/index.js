@@ -98,7 +98,7 @@ async function loadExp() {
    }
 
    const ext = path.extname(uxpfile);
-   const isTs = ext === '.ts';
+   const isTs = ext === '.ts' || ext === '.tsx';
 
    if (isTs) {
       if (esbuildCtx) {

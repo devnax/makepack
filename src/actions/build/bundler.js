@@ -2,24 +2,13 @@ import { rollup } from "rollup";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
-// import { builtinModules } from "module";
-import fs from "fs";
 import path from "path";
 import dts from "rollup-plugin-dts";
 import json from '@rollup/plugin-json';
 import terser from "@rollup/plugin-terser";
 
-async function bind(args, spinner) {
-   // const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
-   // const _external = [
-   //    ...builtinModules,
-   //    ...Object.keys(pkg.dependencies ?? {}),
-   //    ...Object.keys(pkg.devDependencies ?? {}),
-   //    ...Object.keys(pkg.peerDependencies ?? {}),
-   //    "tslib",
-   // ];
-
-   const isTs = args.entry.endsWith(".ts")
+async function bundler(args, spinner) {
+   const isTs = args.entry.endsWith('.ts') || args.entry.endsWith('.tsx')
 
    const config = {
       input: [args.entry],
@@ -33,19 +22,21 @@ async function bind(args, spinner) {
             browser: false
          }),
          commonjs(),
-         isTs ? typescript({
+         typescript({
+            tsconfig: false,
             target: "ES2017",
             module: "ESNext",
-            jsx: "react",
-            strict: true,
-            forceConsistentCasingInFileNames: true,
+            jsx: "react-jsx",
+            moduleResolution: "node", // ✅ Correct and lowercase
             esModuleInterop: true,
+            skipLibCheck: false,
+            strict: true,
             importHelpers: true,
-            moduleResolution: "node",
-            skipLibCheck: true,
-            include: ["src/**/*.ts", "src/**/*.tsx"],
-            exclude: ["node_modules", ".mpack"],
-         }) : null,
+            forceConsistentCasingInFileNames: true,
+            declaration: false,
+            emitDeclarationOnly: false,
+            rootDir: path.resolve(process.cwd(), args.rootdir),
+         }),
          args.minify ? terser() : null,
       ]
    };
@@ -56,7 +47,8 @@ async function bind(args, spinner) {
       format: "esm",
       sourcemap: args.sourcemap,
       compact: true,
-      strict: true
+      strict: true,
+      exports: "named"
    };
    if (!args.bundle) {
       esm.preserveModules = true
@@ -120,4 +112,4 @@ async function bind(args, spinner) {
    }
 }
 
-export default bind;
+export default bundler;
