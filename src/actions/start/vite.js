@@ -5,6 +5,13 @@ import path from 'path';
 import fs from 'fs';
 
 const viteSetup = async (app) => {
+
+   // delete .vite directory if exists
+   const viteDir = path.join(process.cwd(), 'node_modules/.vite');
+   if (fs.existsSync(viteDir)) {
+      fs.rmSync(viteDir, { recursive: true, force: true });
+   }
+
    const viteConfig = {
       root: process.cwd(),
       base: "/",
