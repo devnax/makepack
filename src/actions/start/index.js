@@ -30,6 +30,21 @@ let uxpfile = expExists ? (fs.existsSync(uxpfileJS) ? uxpfileJS : uxpfileTS) : n
 
 const connections = new Set();
 
+function safeHandler(fn) {
+   return (req, res, next) => {
+      try {
+         const result = fn(req, res, next);
+         if (result && typeof result.catch === 'function') {
+            result.catch(next);
+         }
+      } catch (err) {
+         logger.error(`Error in request handler: ${err.message || err}`);
+         res.status(500).send('Internal Server Error');
+         // next();
+      }
+   };
+}
+
 function trackConnections(srv) {
    srv.on('connection', (conn) => {
       connections.add(conn);
@@ -61,9 +76,34 @@ async function bootServer(args) {
    }
 
    app = express();
+
    try {
       const middleware = await loadExp();
       if (typeof middleware === 'function') {
+         const _get = app.get.bind(app);
+         const _post = app.post.bind(app);
+         const _delete = app.delete.bind(app);
+         const _put = app.put.bind(app);
+
+         app.get = (path, ...handlers) => {
+            handlers = handlers.map(h => safeHandler(h));
+            return _get(path, ...handlers);
+         };
+
+         app.post = (path, ...handlers) => {
+            handlers = handlers.map(h => safeHandler(h));
+            return _post(path, ...handlers);
+         };
+
+         app.put = (path, ...handlers) => {
+            handlers = handlers.map(h => safeHandler(h));
+            return _put(path, ...handlers);
+         };
+
+         app.delete = (path, ...handlers) => {
+            handlers = handlers.map(h => safeHandler(h));
+            return _delete(path, ...handlers);
+         };
          middleware(app);
       }
 
@@ -79,7 +119,6 @@ async function bootServer(args) {
       logger.error(`Failed to start server: ${err.message || err}`);
    }
 }
-
 
 let esbuildCtx = null;
 
