@@ -9,7 +9,7 @@ import viteSetup from './vite.js';
 import * as esbuild from 'esbuild';
 import { randomUUID } from 'crypto';
 import debounce from 'lodash.debounce';
-import { logger, concolor } from '../../helpers.js';
+import { logger, concolor, loadViteConfig } from '../../helpers.js';
 
 const projectRoot = process.cwd();
 const requireFn = createRequire(import.meta.url);
@@ -106,9 +106,9 @@ async function bootServer(args) {
          };
          middleware(app);
       }
-
+      const config = await loadViteConfig() || {}
       viteServer = await viteSetup(app);
-      const port = args.port || 4000;
+      const port = args.port || config?.server?.port || 4000;
       server = app.listen(port, () => {
          if (!wasServer) {
             logger.success(`Server running on: ${concolor.green(concolor.bold(`http://localhost:${port}`))}`, '')

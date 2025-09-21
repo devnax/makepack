@@ -17,7 +17,7 @@ program
 
 program
    .command("start")
-   .option("-p, --port <port>", "Port to run the server", 3000)
+   .option("-p, --port <port>", "Port to run the server")
    .description("Start the server")
    .action(start);
 

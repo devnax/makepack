@@ -1,10 +1,11 @@
 // import react from '@vitejs/plugin-react'
 import { createServer as createViteServer } from 'vite';
-import { logger } from '../../helpers.js'
+import { loadViteConfig, logger } from '../../helpers.js'
 import path from 'path';
 import fs from 'fs';
 
 const viteSetup = async (app) => {
+   const config = await loadViteConfig() || {}
 
    // delete .vite directory if exists
    const viteDir = path.join(process.cwd(), 'node_modules/.vite');
@@ -13,10 +14,13 @@ const viteSetup = async (app) => {
    }
 
    const viteConfig = {
+      ...config,
+      configFile: false,
       root: process.cwd(),
       base: "/",
       // plugins: [react()],
       server: {
+         ...config?.server,
          middlewareMode: true,
       },
       customLogger: {

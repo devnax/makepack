@@ -1,6 +1,6 @@
 {
   "name": "makepack",
-  "version": "1.7.13",
+  "version": "1.7.14",
   "type": "module",
   "description": "A CLI tool to create, build, and manage JavaScript, TypeScript, React, and React-TypeScript libraries for npm projects.",
   "categories": [
@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/devnax/makepack#readme",
   "scripts": {
-    "start": "node ./src/index.js start --port 3000",
+    "start": "node ./src/index.js start",
     "create": "node ./src/index.js create",
     "build": "node ./src/index.js build"
   },

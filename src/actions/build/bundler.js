@@ -6,13 +6,29 @@ import path from "path";
 import dts from "rollup-plugin-dts";
 import json from '@rollup/plugin-json';
 import terser from "@rollup/plugin-terser";
+import { loadRollupConfig, loadViteConfig } from "../../helpers.js";
 
 async function bundler(args, spinner) {
+
    const isTs = args.entry.endsWith('.ts') || args.entry.endsWith('.tsx')
+   const viteConfig = await loadViteConfig()
+   const rollupConfig = await loadRollupConfig()
+   const viteRollupConfig = viteConfig?.build?.rollupOptions || {}
+   Object.assign(rollupConfig || {}, viteRollupConfig);
 
    const config = {
+      ...rollupConfig,
       input: [args.entry],
       external: (id) => {
+         if (rollupConfig && typeof rollupConfig.external === 'function') {
+            if (rollupConfig.external(id)) {
+               return true;
+            }
+         } else if (Array.isArray(rollupConfig && rollupConfig.external)) {
+            if (rollupConfig.external.includes(id)) {
+               return true;
+            }
+         }
          return !id.startsWith('.') && !id.startsWith('/') && !/^[A-Za-z]:\\/.test(id);
       },
       plugins: [
@@ -38,6 +54,7 @@ async function bundler(args, spinner) {
             rootDir: path.resolve(process.cwd(), args.rootdir),
          }),
          args.minify ? terser() : null,
+         ...rollupConfig?.plugins || [],
       ]
    };
 

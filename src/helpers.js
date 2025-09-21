@@ -1,4 +1,5 @@
 import child_process from 'child_process'
+
 export const execSync = (command, option = {}) => {
    try {
       const result = child_process.execSync(command, {
@@ -51,3 +52,69 @@ export const logger = {
       logger.log(message, prefix, icon ? 'error' : '', 'red');
    }
 };
+
+import fs from 'fs/promises';
+import path from 'path';
+import { pathToFileURL } from 'url';
+
+/**
+ * Load full Vite config object from root
+ */
+export async function loadViteConfig() {
+   // List of common Vite config files
+   const possibleFiles = [
+      'vite.config.js',
+      'vite.config.ts',
+      'vite.config.mjs',
+      'vite.config.cjs',
+   ];
+
+   for (const file of possibleFiles) {
+      const configPath = path.resolve(process.cwd(), file);
+
+      try {
+         await fs.access(configPath); // check if file exists
+      } catch {
+         continue; // file doesn't exist, try next
+      }
+
+      try {
+         const imported = await import(pathToFileURL(configPath).href);
+         return imported.default || imported; // return full config object
+      } catch (err) {
+         console.error(`Failed to load ${file}:`, err);
+         return null;
+      }
+   }
+
+   return null; // no config found
+}
+
+
+export async function loadRollupConfig() {
+   const possibleFiles = [
+      'rollup.config.js',
+      'rollup.config.mjs',
+      'rollup.config.cjs',
+   ];
+
+   for (const file of possibleFiles) {
+      const configPath = path.resolve(process.cwd(), file);
+
+      try {
+         await fs.access(configPath); // check if file exists
+      } catch {
+         continue; // file doesn't exist, try next
+      }
+
+      try {
+         const imported = await import(pathToFileURL(configPath).href);
+         return imported.default || imported; // return full config object
+      } catch (err) {
+         console.error(`Failed to load ${file}:`, err);
+         return null;
+      }
+   }
+
+   return null;
+}
