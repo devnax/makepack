@@ -2,12 +2,11 @@ import { rollup } from "rollup";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
-import path from "path";
-import dts from "rollup-plugin-dts";
 import json from "@rollup/plugin-json";
 import terser from "@rollup/plugin-terser";
+import path from "path";
 import fs from "fs/promises";
-import fss from "fs";
+import ts from "typescript";
 import { loadRollupConfig, loadViteConfig } from "../../helpers.js";
 
 const MAX_DIR_CONCURRENCY = 16;
@@ -25,9 +24,8 @@ async function getEntriesBatch(root) {
 
          for (const item of items) {
             const full = path.join(dir, item.name);
-            if (item.isDirectory()) {
-               dirs.push(full);
-            } else if (/\.(ts|tsx|js|jsx)$/.test(item.name)) {
+            if (item.isDirectory()) dirs.push(full);
+            else if (/\.(ts|tsx|js|jsx)$/.test(item.name)) {
                const name = path.relative(root, full).replace(/\.(ts|tsx|js|jsx)$/, "");
                entries[name] = full;
             }
@@ -43,7 +41,7 @@ async function getEntriesBatch(root) {
 
 // --------------------- Batched parallel asset copy ---------------------
 function isCodeFile(filename) {
-   return /\.(ts|tsx|js|jsx|cjs|mjs|d\.ts)$/i.test(filename);
+   return /\.(ts|tsx|js|jsx|cjs|mjs)$/i.test(filename);
 }
 
 function isSkippedDir(name) {
@@ -58,14 +56,10 @@ async function copyAssetsBatched(rootdir, outdir) {
       for (const item of items) {
          const full = path.join(dir, item.name);
          const rel = path.relative(rootdir, full);
-
          if (rel.split(path.sep).some(p => isSkippedDir(p))) continue;
 
-         if (item.isDirectory()) {
-            await walk(full);
-         } else if (!isCodeFile(item.name)) {
-            queue.push({ src: full, rel });
-         }
+         if (item.isDirectory()) await walk(full);
+         else if (!isCodeFile(item.name)) queue.push({ src: full, rel });
       }
    }
 
@@ -84,12 +78,44 @@ async function copyAssetsBatched(rootdir, outdir) {
    await Promise.all(workers);
 }
 
+// --------------------- Generate .d.ts using TS Compiler API ---------------------
+async function generateDeclarations(rootDir, outDir) {
+   const tsFiles = [];
+
+   async function walk(dir) {
+      const items = await fs.readdir(dir, { withFileTypes: true });
+      for (const item of items) {
+         const full = path.join(dir, item.name);
+         if (item.isDirectory()) await walk(full);
+         else if (/\.(ts|tsx)$/.test(item.name)) tsFiles.push(full);
+      }
+   }
+
+   await walk(rootDir);
+
+   if (!tsFiles.length) return;
+
+   const options = {
+      declaration: true,
+      emitDeclarationOnly: true,
+      outDir: outDir,
+      rootDir: rootDir,
+      moduleResolution: ts.ModuleResolutionKind.NodeJs,
+      target: ts.ScriptTarget.ES2017,
+      module: ts.ModuleKind.ESNext,
+      esModuleInterop: true,
+      skipLibCheck: true,
+   };
+
+   const program = ts.createProgram(tsFiles, options);
+   program.emit();
+}
+
 // --------------------- Main Bundler ---------------------
 async function bundler(args, spinner) {
    const rootdir = args.rootdir;
    const outdir = args.outdir;
 
-   // Multi-entry
    const entries = await getEntriesBatch(rootdir);
    const isTs = Object.values(entries).some(f => f.endsWith(".ts") || f.endsWith(".tsx"));
 
@@ -123,7 +149,7 @@ async function bundler(args, spinner) {
             esModuleInterop: true,
             strict: true,
             importHelpers: true,
-            skipLibCheck: false,
+            skipLibCheck: true,
             forceConsistentCasingInFileNames: true,
             declaration: false,
             emitDeclarationOnly: false,
@@ -139,7 +165,6 @@ async function bundler(args, spinner) {
    // --------------------- Determine output formats ---------------------
    const outputs = [];
 
-   // Default: build both esm and cjs
    if (!args.format || args.format === "both") {
       outputs.push({
          dir: outdir,
@@ -182,20 +207,13 @@ async function bundler(args, spinner) {
 
    await bundle.close();
 
-   // --------------------- Parallel asset copy ---------------------
+   // --------------------- Copy assets ---------------------
    await copyAssetsBatched(rootdir, outdir);
 
-   // --------------------- DTS Generation ---------------------
+   // --------------------- Generate TypeScript declarations ---------------------
    if (isTs && args.declaration) {
-      spinner.text = "Generating TypeScript declarations…";
-      const dtsBundle = await rollup({ ...config, plugins: [dts()] });
-      await dtsBundle.write({
-         dir: outdir,
-         format: "esm",
-         preserveModules: true,
-         preserveModulesRoot: rootdir
-      });
-      await dtsBundle.close();
+      spinner.text = "📄 Generating TypeScript declarations programmatically...";
+      await generateDeclarations(rootdir, outdir);
    }
 }
 
