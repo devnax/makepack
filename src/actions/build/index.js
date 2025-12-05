@@ -1,75 +1,79 @@
-import fs from 'fs-extra'
-import path from 'path'
-import ora from 'ora'
-import { concolor, logger } from '../../helpers.js'
-import bundler from './bundler.js'
+import fs from 'fs-extra';
+import path from 'path';
+import ora from 'ora';
+import { concolor, logger } from '../../helpers.js';
+import bundler from './bundler.js';
 
 const build = async (args) => {
-   /* args 
-   --format=both 
-   --bundle=true, 
-   --minify=false, 
-   --sourcemap=true, 
-   --declaration=true,
+   /*
+     args options:
+     --format=both
+     --bundle=true
+     --minify=false
+     --sourcemap=true
+     --declaration=true
    */
 
-   let printBool = (f) => typeof args[f] === 'string' ? (args[f] === 'true') : args[f];
+   // Convert string "true"/"false" to boolean
+   const beBool = (f) =>
+      typeof args[f] === 'string' ? args[f].toLowerCase() === 'true' : !!args[f];
 
    const outdir = path.join(process.cwd(), '.mpack');
    const rootdir = path.join(process.cwd(), 'src');
 
-   let entry = '';
-   let entryts = path.join(rootdir, 'index.ts');
-   let entryjs = path.join(rootdir, 'index.js');
-   let entrytsx = path.join(rootdir, 'index.tsx');
-   let entryjsx = path.join(rootdir, 'index.jsx');
-
-   if (fs.existsSync(entryts)) {
-      entry = "index.ts";
-   } else if (fs.existsSync(entryjs)) {
-      entry = "index.js";
-   } else if (fs.existsSync(entrytsx)) {
-      entry = "index.tsx";
-   } else if (fs.existsSync(entryjsx)) {
-      entry = "index.jsx";
-   } else {
-      throw new Error("No entry file found in src directory. Please provide an index.ts or index.js file.");
-   }
-
    args = {
-      format: args.format || "both",
-      bundle: printBool('bundle'),
-      minify: printBool('minify'),
-      sourcemap: printBool('sourcemap'),
-      declaration: printBool('declaration'),
+      format: args.format || 'both',
+      bundle: beBool('bundle'),
+      minify: beBool('minify'),
+      sourcemap: beBool('sourcemap'),
+      declaration: beBool('declaration'),
       outdir,
       rootdir,
-      entry: path.join(rootdir, entry),
-   }
+   };
 
-   if (fs.existsSync(outdir)) {
-      fs.rmSync(outdir, { recursive: true, force: true });
-   }
-   fs.mkdirSync(outdir)
-   const spinner = ora("✨ Bundling your package..\n").start();
-   await bundler(args, spinner);
-   spinner.text = "Copying package.json and readme.md files..."
-   const pkgPath = path.join(process.cwd(), 'package.json');
-   if (fs.existsSync(pkgPath)) {
-      const pkgjson = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-      delete pkgjson.scripts
-      delete pkgjson.type
-      fs.writeFileSync(path.join(outdir, 'package.json'), JSON.stringify(pkgjson, null, 2));
-   } else {
-      logger.error("package.json not found!");
-      return;
-   }
+   const spinner = ora('✨ Building your package...\n').start();
 
-   fs.copyFileSync(path.join(process.cwd(), '/readme.md'), path.join(outdir, `/readme.md`))
-   spinner.succeed(concolor.bold(concolor.green(`Build successfully completed\n`)));
-   console.log(concolor.bold(`To publish your package to npm run:`));
-   console.log(`${concolor.yellow(`\`npm run release\``)} Or navigate to \`.mpack\` and run: ${concolor.yellow(`\`npm publish\`\n`)}`);
-   spinner.stop();
-}
+   try {
+      // Remove old build folder
+      await fs.remove(outdir);
+      await fs.mkdirp(outdir);
 
-export default build
+      // Run bundler
+      await bundler(args, spinner);
+
+      spinner.text = '📦 Copying package.json and readme.md files...';
+
+      // Copy package.json
+      const pkgPath = path.join(process.cwd(), 'package.json');
+      if (await fs.pathExists(pkgPath)) {
+         const pkgjson = await fs.readJson(pkgPath);
+         delete pkgjson.scripts;
+         delete pkgjson.type;
+         await fs.writeJson(path.join(outdir, 'package.json'), pkgjson, { spaces: 2 });
+      } else {
+         spinner.fail(concolor.red('package.json not found!'));
+         return;
+      }
+
+      // Copy readme.md if exists
+      const readmePath = path.join(process.cwd(), 'readme.md');
+      if (await fs.pathExists(readmePath)) {
+         await fs.copy(readmePath, path.join(outdir, 'readme.md'));
+      }
+
+      spinner.succeed(concolor.bold(concolor.green('Build successfully completed!\n')));
+      console.log(concolor.bold('To publish your package, run:'));
+      console.log(
+         `${concolor.yellow('`npm run release`')} or navigate to \`.mpack\` and run: ${concolor.yellow(
+            '`npm publish`\n'
+         )}`
+      );
+   } catch (err) {
+      spinner.fail(concolor.red('Build failed!'));
+      logger.error(err);
+   } finally {
+      spinner.stop();
+   }
+};
+
+export default build;
