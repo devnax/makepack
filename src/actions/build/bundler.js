@@ -12,14 +12,16 @@ import { loadRollupConfig, loadViteConfig } from "../../helpers.js";
 const MAX_DIR_CONCURRENCY = 16;
 const MAX_FILE_COPY_CONCURRENCY = 32;
 
+// --------------------- Helpers ---------------------
 function isCodeFile(filename) {
    return /\.(ts|tsx|js|jsx|cjs|mjs)$/i.test(filename);
 }
 
 function isSkippedDir(name) {
-   return name === "node_modules" || name === ".git" || name === ".next";
+   return ["node_modules", ".git", ".next"].includes(name);
 }
 
+// --------------------- Multi-entry collector with type-only detection ---------------------
 async function getEntriesBatch(root) {
    const entries = {};
    const dirs = [root];
@@ -31,15 +33,26 @@ async function getEntriesBatch(root) {
 
          for (const item of items) {
             const full = path.join(dir, item.name);
-            if (item.isDirectory()) dirs.push(full);
-            else if (isCodeFile(item.name) && !item.name.endsWith(".d.ts")) {
-               // Skip type-only files heuristically
-               const content = await fs.readFile(full, "utf-8");
-               const typeOnly = /^\s*(export\s+)?(type|interface|enum|declare)/m.test(content);
-               if (!typeOnly) {
-                  const name = path.relative(root, full).replace(/\.(ts|tsx|js|jsx)$/, "");
-                  entries[name] = full;
-               }
+
+            if (item.isDirectory()) {
+               dirs.push(full);
+               continue;
+            }
+
+            if (!isCodeFile(item.name) || item.name.endsWith(".d.ts")) continue;
+
+            // read file content to detect type-only
+            const content = await fs.readFile(full, "utf-8");
+            const lines = content.split(/\r?\n/);
+            const typeOnly = lines.every(
+               line =>
+                  /^\s*(export\s+)?(type|interface|enum|declare)/.test(line) ||
+                  line.trim() === ""
+            );
+
+            if (!typeOnly) {
+               const name = path.relative(root, full).replace(/\.(ts|tsx|js|jsx)$/, "");
+               entries[name] = full;
             }
          }
       }
@@ -47,7 +60,6 @@ async function getEntriesBatch(root) {
 
    const workers = Array.from({ length: MAX_DIR_CONCURRENCY }, () => worker());
    await Promise.all(workers);
-
    return entries;
 }
 
@@ -60,7 +72,7 @@ async function copyAssetsBatched(rootdir, outdir) {
       for (const item of items) {
          const full = path.join(dir, item.name);
          const rel = path.relative(rootdir, full);
-         if (rel.split(path.sep).some(p => isSkippedDir(p))) continue;
+         if (rel.split(path.sep).some(isSkippedDir)) continue;
 
          if (item.isDirectory()) await walk(full);
          else if (!isCodeFile(item.name)) queue.push({ src: full, rel });
@@ -82,7 +94,7 @@ async function copyAssetsBatched(rootdir, outdir) {
    await Promise.all(workers);
 }
 
-// --------------------- Generate .d.ts programmatically ---------------------
+// --------------------- Generate .d.ts using TS Compiler API ---------------------
 async function generateDeclarations(rootDir, outDir) {
    const tsFiles = [];
 
@@ -115,7 +127,7 @@ async function generateDeclarations(rootDir, outDir) {
    program.emit();
 }
 
-// --------------------- Main bundler ---------------------
+// --------------------- Main Bundler ---------------------
 async function bundler(args, spinner) {
    const rootdir = args.rootdir;
    const outdir = args.outdir;
@@ -164,7 +176,14 @@ async function bundler(args, spinner) {
       ]
    };
 
-   const bundle = await rollup(config);
+   const bundle = await rollup({
+      ...config,
+      onwarn(warning, warn) {
+         // Ignore empty chunk warnings
+         if (warning.code === "EMPTY_BUNDLE") return;
+         warn(warning);
+      }
+   });
 
    // --------------------- Output formats ---------------------
    const outputs = [];
@@ -175,7 +194,7 @@ async function bundler(args, spinner) {
          sourcemap: args.sourcemap,
          preserveModules: true,
          preserveModulesRoot: rootdir,
-         entryFileNames: "[name].mjs"
+         entryFileNames: "[name].mjs",
       });
       outputs.push({
          dir: outdir,
@@ -183,7 +202,7 @@ async function bundler(args, spinner) {
          sourcemap: args.sourcemap,
          preserveModules: true,
          preserveModulesRoot: rootdir,
-         entryFileNames: "[name].cjs"
+         entryFileNames: "[name].cjs",
       });
    } else if (args.format === "esm" || args.format === "cjs") {
       outputs.push({
@@ -192,7 +211,7 @@ async function bundler(args, spinner) {
          sourcemap: args.sourcemap,
          preserveModules: true,
          preserveModulesRoot: rootdir,
-         entryFileNames: args.format === "esm" ? "[name].mjs" : "[name].cjs"
+         entryFileNames: args.format === "esm" ? "[name].mjs" : "[name].cjs",
       });
    } else if (args.format === "iife" || args.format === "umd") {
       outputs.push({
@@ -200,7 +219,7 @@ async function bundler(args, spinner) {
          format: args.format,
          name: args.name || "Bundle",
          sourcemap: args.sourcemap,
-         entryFileNames: "[name].js"
+         entryFileNames: "[name].js",
       });
    }
 
