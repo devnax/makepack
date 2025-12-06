@@ -12,7 +12,14 @@ import { loadRollupConfig, loadViteConfig } from "../../helpers.js";
 const MAX_DIR_CONCURRENCY = 16;
 const MAX_FILE_COPY_CONCURRENCY = 32;
 
-// --------------------- Batched multi-entry collector ---------------------
+function isCodeFile(filename) {
+   return /\.(ts|tsx|js|jsx|cjs|mjs)$/i.test(filename);
+}
+
+function isSkippedDir(name) {
+   return name === "node_modules" || name === ".git" || name === ".next";
+}
+
 async function getEntriesBatch(root) {
    const entries = {};
    const dirs = [root];
@@ -25,9 +32,14 @@ async function getEntriesBatch(root) {
          for (const item of items) {
             const full = path.join(dir, item.name);
             if (item.isDirectory()) dirs.push(full);
-            else if (/\.(ts|tsx|js|jsx)$/.test(item.name)) {
-               const name = path.relative(root, full).replace(/\.(ts|tsx|js|jsx)$/, "");
-               entries[name] = full;
+            else if (isCodeFile(item.name) && !item.name.endsWith(".d.ts")) {
+               // Skip type-only files heuristically
+               const content = await fs.readFile(full, "utf-8");
+               const typeOnly = /^\s*(export\s+)?(type|interface|enum|declare)/m.test(content);
+               if (!typeOnly) {
+                  const name = path.relative(root, full).replace(/\.(ts|tsx|js|jsx)$/, "");
+                  entries[name] = full;
+               }
             }
          }
       }
@@ -39,15 +51,7 @@ async function getEntriesBatch(root) {
    return entries;
 }
 
-// --------------------- Batched parallel asset copy ---------------------
-function isCodeFile(filename) {
-   return /\.(ts|tsx|js|jsx|cjs|mjs)$/i.test(filename);
-}
-
-function isSkippedDir(name) {
-   return name === "node_modules" || name === ".git" || name === ".next";
-}
-
+// --------------------- Parallel asset copy ---------------------
 async function copyAssetsBatched(rootdir, outdir) {
    const queue = [];
 
@@ -78,7 +82,7 @@ async function copyAssetsBatched(rootdir, outdir) {
    await Promise.all(workers);
 }
 
-// --------------------- Generate .d.ts using TS Compiler API ---------------------
+// --------------------- Generate .d.ts programmatically ---------------------
 async function generateDeclarations(rootDir, outDir) {
    const tsFiles = [];
 
@@ -111,7 +115,7 @@ async function generateDeclarations(rootDir, outDir) {
    program.emit();
 }
 
-// --------------------- Main Bundler ---------------------
+// --------------------- Main bundler ---------------------
 async function bundler(args, spinner) {
    const rootdir = args.rootdir;
    const outdir = args.outdir;
@@ -162,9 +166,8 @@ async function bundler(args, spinner) {
 
    const bundle = await rollup(config);
 
-   // --------------------- Determine output formats ---------------------
+   // --------------------- Output formats ---------------------
    const outputs = [];
-
    if (!args.format || args.format === "both") {
       outputs.push({
          dir: outdir,
