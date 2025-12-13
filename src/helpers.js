@@ -1,4 +1,8 @@
 import child_process from 'child_process'
+import fs from 'fs/promises';
+import path from 'path';
+import { pathToFileURL } from 'url';
+
 
 export const execSync = (command, option = {}) => {
    try {
@@ -53,9 +57,6 @@ export const logger = {
    }
 };
 
-import fs from 'fs/promises';
-import path from 'path';
-import { pathToFileURL } from 'url';
 
 /**
  * Load full Vite config object from root

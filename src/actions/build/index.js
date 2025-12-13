@@ -20,6 +20,23 @@ const build = async (args) => {
 
    const outdir = path.join(process.cwd(), '.mpack');
    const rootdir = path.join(process.cwd(), 'src');
+   let entry = '';
+   let entryts = path.join(rootdir, 'index.ts');
+   let entryjs = path.join(rootdir, 'index.js');
+   let entrytsx = path.join(rootdir, 'index.tsx');
+   let entryjsx = path.join(rootdir, 'index.jsx');
+
+   if (fs.existsSync(entryts)) {
+      entry = "index.ts";
+   } else if (fs.existsSync(entryjs)) {
+      entry = "index.js";
+   } else if (fs.existsSync(entrytsx)) {
+      entry = "index.tsx";
+   } else if (fs.existsSync(entryjsx)) {
+      entry = "index.jsx";
+   } else {
+      throw new Error("No entry file found in src directory. Please provide an index.ts or index.js file.");
+   }
 
    args = {
       format: args.format || 'both',
@@ -29,6 +46,7 @@ const build = async (args) => {
       declaration: beBool('declaration'),
       outdir,
       rootdir,
+      entry: path.join(rootdir, entry),
    };
 
    const spinner = ora('✨ Building your package...\n').start();
@@ -49,6 +67,12 @@ const build = async (args) => {
          const pkgjson = await fs.readJson(pkgPath);
          delete pkgjson.scripts;
          delete pkgjson.type;
+         delete pkgjson.devDependencies;
+         delete pkgjson.jest;
+         delete pkgjson.prettier;
+         delete pkgjson.eslintConfig;
+         delete pkgjson.vite;
+         delete pkgjson.rollup;
          await fs.writeJson(path.join(outdir, 'package.json'), pkgjson, { spaces: 2 });
       } else {
          spinner.fail(concolor.red('package.json not found!'));

@@ -6,10 +6,8 @@ import json from "@rollup/plugin-json";
 import terser from "@rollup/plugin-terser";
 import path from "path";
 import fs from "fs/promises";
-import ts from "typescript";
 import { loadRollupConfig, loadViteConfig } from "../../helpers.js";
-
-const MAX_DIR_CONCURRENCY = 16;
+import dts from "rollup-plugin-dts";
 const MAX_FILE_COPY_CONCURRENCY = 32;
 
 // --------------------- Helpers ---------------------
@@ -19,48 +17,6 @@ function isCodeFile(filename) {
 
 function isSkippedDir(name) {
    return ["node_modules", ".git", ".next"].includes(name);
-}
-
-// --------------------- Multi-entry collector with type-only detection ---------------------
-async function getEntriesBatch(root) {
-   const entries = {};
-   const dirs = [root];
-
-   async function worker() {
-      while (dirs.length) {
-         const dir = dirs.shift();
-         const items = await fs.readdir(dir, { withFileTypes: true });
-
-         for (const item of items) {
-            const full = path.join(dir, item.name);
-
-            if (item.isDirectory()) {
-               dirs.push(full);
-               continue;
-            }
-
-            if (!isCodeFile(item.name) || item.name.endsWith(".d.ts")) continue;
-
-            // read file content to detect type-only
-            const content = await fs.readFile(full, "utf-8");
-            const lines = content.split(/\r?\n/);
-            const typeOnly = lines.every(
-               line =>
-                  /^\s*(export\s+)?(type|interface|enum|declare)/.test(line) ||
-                  line.trim() === ""
-            );
-
-            if (!typeOnly) {
-               const name = path.relative(root, full).replace(/\.(ts|tsx|js|jsx)$/, "");
-               entries[name] = full;
-            }
-         }
-      }
-   }
-
-   const workers = Array.from({ length: MAX_DIR_CONCURRENCY }, () => worker());
-   await Promise.all(workers);
-   return entries;
 }
 
 // --------------------- Parallel asset copy ---------------------
@@ -94,46 +50,54 @@ async function copyAssetsBatched(rootdir, outdir) {
    await Promise.all(workers);
 }
 
-// --------------------- Generate .d.ts using TS Compiler API ---------------------
-async function generateDeclarations(rootDir, outDir) {
-   const tsFiles = [];
+/**
+ * Normalize rollup input (string | array | object)
+ * → returns [{ entry, outdir }]
+ */
+function mapEntriesToOutdirs(entries, rootdir, baseOutdir) {
+   const absRoot = path.resolve(process.cwd(), rootdir);
+   const absOut = path.resolve(process.cwd(), baseOutdir);
 
-   async function walk(dir) {
-      const items = await fs.readdir(dir, { withFileTypes: true });
-      for (const item of items) {
-         const full = path.join(dir, item.name);
-         if (item.isDirectory()) await walk(full);
-         else if (/\.(ts|tsx)$/.test(item.name)) tsFiles.push(full);
-      }
+   /** normalize to array of absolute entry paths */
+   let entryList = [];
+
+   // string
+   if (typeof entries === "string") {
+      entryList = [entries];
    }
 
-   await walk(rootDir);
+   // array
+   else if (Array.isArray(entries)) {
+      entryList = entries;
+   }
 
-   if (!tsFiles.length) return;
+   // object { name: path }
+   else if (entries && typeof entries === "object") {
+      entryList = Object.values(entries);
+   }
 
-   const options = {
-      declaration: true,
-      emitDeclarationOnly: true,
-      outDir: outDir,
-      rootDir: rootDir,
-      moduleResolution: ts.ModuleResolutionKind.NodeJs,
-      target: ts.ScriptTarget.ES2017,
-      module: ts.ModuleKind.ESNext,
-      esModuleInterop: true,
-      skipLibCheck: true,
-   };
+   return entryList.map(entry => {
+      const absEntry = path.isAbsolute(entry)
+         ? entry
+         : path.resolve(process.cwd(), entry);
 
-   const program = ts.createProgram(tsFiles, options);
-   program.emit();
+      // relative path from rootdir (e.g. anydir/entry.ts)
+      const rel = path.relative(absRoot, absEntry);
+
+      // directory only (e.g. anydir)
+      const subdir = path.dirname(rel);
+
+      return {
+         entry: absEntry,
+         outdir: subdir === "." ? absOut : path.join(absOut, subdir),
+      };
+   });
 }
 
 // --------------------- Main Bundler ---------------------
-async function bundler(args, spinner) {
+async function bundler(args, spinner, child = false) {
    const rootdir = args.rootdir;
    const outdir = args.outdir;
-
-   const entries = await getEntriesBatch(rootdir);
-   const isTs = Object.values(entries).some(f => f.endsWith(".ts") || f.endsWith(".tsx"));
 
    const viteConfig = await loadViteConfig();
    const rollupConfig = await loadRollupConfig();
@@ -142,7 +106,7 @@ async function bundler(args, spinner) {
 
    const config = {
       ...rollupConfig,
-      input: { ...entries },
+      input: args.entry,
       external: id => {
          if (rollupConfig && typeof rollupConfig.external === "function") {
             if (rollupConfig.external(id)) return true;
@@ -176,14 +140,9 @@ async function bundler(args, spinner) {
       ]
    };
 
-   const bundle = await rollup({
-      ...config,
-      onwarn(warning, warn) {
-         // Ignore empty chunk warnings
-         if (warning.code === "EMPTY_BUNDLE") return;
-         warn(warning);
-      }
-   });
+   const bundle = await rollup(config);
+
+
 
    // --------------------- Output formats ---------------------
    const outputs = [];
@@ -229,13 +188,42 @@ async function bundler(args, spinner) {
 
    await bundle.close();
 
-   // --------------------- Copy assets ---------------------
-   await copyAssetsBatched(rootdir, outdir);
 
-   // --------------------- Generate TypeScript declarations ---------------------
-   if (isTs && args.declaration) {
-      spinner.text = "📄 Generating TypeScript declarations programmatically...";
-      await generateDeclarations(rootdir, outdir);
+   if (!child && rollupConfig && rollupConfig.input) {
+      const mapentries = mapEntriesToOutdirs(rollupConfig.input, rootdir, outdir)
+      if (mapentries.length > 1) {
+         spinner.text = `📦 Bundling ${mapentries.length} entries...`;
+      }
+
+      for (const { entry } of mapentries) {
+         await bundler({
+            ...args,
+            entry,
+            outdir,
+         }, spinner, true);
+      }
+
+   }
+
+   // --------------------- Copy assets ---------------------
+   if (!child) {
+      spinner.text = "📁 Copying non-code assets...";
+      await copyAssetsBatched(rootdir, outdir);
+   }
+
+   if (args.declaration) {
+      spinner.text = "Generating TypeScript declarations..."
+      const bundlets = await rollup({
+         ...config,
+         plugins: [dts()],
+      });
+      await bundlets.write({
+         format: "esm",
+         preserveModules: true,
+         preserveModulesRoot: args.rootdir,
+         dir: path.join(args.outdir),
+      });
+      await bundlets.close();
    }
 }
 
