@@ -104,6 +104,21 @@ async function bundler(args, spinner, child = false) {
    const viteRollupConfig = viteConfig?.build?.rollupOptions || {};
    Object.assign(rollupConfig || {}, viteRollupConfig);
 
+   if (!child && rollupConfig && rollupConfig.input) {
+      const mapentries = mapEntriesToOutdirs(rollupConfig.input, rootdir, outdir)
+      if (mapentries.length > 1) {
+         spinner.text = `📦 Bundling ${mapentries.length} entries...`;
+      }
+
+      for (const { entry } of mapentries) {
+         await bundler({
+            ...args,
+            entry,
+            outdir,
+         }, spinner, true);
+      }
+   }
+
    const config = {
       ...rollupConfig,
       input: args.entry,
@@ -182,28 +197,13 @@ async function bundler(args, spinner, child = false) {
       });
    }
 
+
+
    for (const output of outputs) {
       await bundle.write(output);
    }
 
    await bundle.close();
-
-
-   if (!child && rollupConfig && rollupConfig.input) {
-      const mapentries = mapEntriesToOutdirs(rollupConfig.input, rootdir, outdir)
-      if (mapentries.length > 1) {
-         spinner.text = `📦 Bundling ${mapentries.length} entries...`;
-      }
-
-      for (const { entry } of mapentries) {
-         await bundler({
-            ...args,
-            entry,
-            outdir,
-         }, spinner, true);
-      }
-
-   }
 
    // --------------------- Copy assets ---------------------
    if (!child) {
