@@ -161,7 +161,7 @@ async function bundler(args, spinner, child = false) {
          sourcemap: args.sourcemap,
          preserveModules: true,
          preserveModulesRoot: rootdir,
-         entryFileNames: "[name].cjs",
+         entryFileNames: "[name].js",
       });
    } else if (args.format === "esm" || args.format === "cjs") {
       outputs.push({
@@ -170,7 +170,7 @@ async function bundler(args, spinner, child = false) {
          sourcemap: args.sourcemap,
          preserveModules: true,
          preserveModulesRoot: rootdir,
-         entryFileNames: args.format === "esm" ? "[name].mjs" : "[name].cjs",
+         entryFileNames: args.format === "esm" ? "[name].mjs" : "[name].js",
       });
    } else if (args.format === "iife" || args.format === "umd") {
       outputs.push({
