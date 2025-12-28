@@ -28,3 +28,4 @@ dist-ssr
 .mpack
 main.tsx
 tsconfig.json
+package-lock.json

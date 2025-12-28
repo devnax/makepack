@@ -8,6 +8,8 @@ import path from "path";
 import fs from "fs/promises";
 import { loadRollupConfig, loadViteConfig } from "../../helpers.js";
 import dts from "rollup-plugin-dts";
+import preserveDirectives from "rollup-plugin-preserve-directives";
+
 const MAX_FILE_COPY_CONCURRENCY = 32;
 
 // --------------------- Helpers ---------------------
@@ -50,48 +52,32 @@ async function copyAssetsBatched(rootdir, outdir) {
    await Promise.all(workers);
 }
 
-/**
- * Normalize rollup input (string | array | object)
- * → returns [{ entry, outdir }]
- */
-function mapEntriesToOutdirs(entries, rootdir, baseOutdir) {
-   const absRoot = path.resolve(process.cwd(), rootdir);
-   const absOut = path.resolve(process.cwd(), baseOutdir);
 
-   /** normalize to array of absolute entry paths */
-   let entryList = [];
+function normalizeInput(input, extraEntry) {
+   const result = {};
 
-   // string
-   if (typeof entries === "string") {
-      entryList = [entries];
+   const add = (entry, name) => {
+      const key = name || path.basename(entry).replace(/\.[^.]+$/, "");
+      result[key] = path.resolve(process.cwd(), entry);
+   };
+
+   // rollupConfig.input
+   if (typeof input === "string") {
+      add(input);
+   } else if (Array.isArray(input)) {
+      input.forEach(i => add(i));
+   } else if (input && typeof input === "object") {
+      for (const [name, entry] of Object.entries(input)) {
+         add(entry, name);
+      }
    }
 
-   // array
-   else if (Array.isArray(entries)) {
-      entryList = entries;
+   // args.entry (CLI)
+   if (extraEntry) {
+      add(extraEntry);
    }
 
-   // object { name: path }
-   else if (entries && typeof entries === "object") {
-      entryList = Object.values(entries);
-   }
-
-   return entryList.map(entry => {
-      const absEntry = path.isAbsolute(entry)
-         ? entry
-         : path.resolve(process.cwd(), entry);
-
-      // relative path from rootdir (e.g. anydir/entry.ts)
-      const rel = path.relative(absRoot, absEntry);
-
-      // directory only (e.g. anydir)
-      const subdir = path.dirname(rel);
-
-      return {
-         entry: absEntry,
-         outdir: subdir === "." ? absOut : path.join(absOut, subdir),
-      };
-   });
+   return result;
 }
 
 // --------------------- Main Bundler ---------------------
@@ -103,25 +89,17 @@ async function bundler(args, spinner, child = false) {
    const rollupConfig = await loadRollupConfig();
    const viteRollupConfig = viteConfig?.build?.rollupOptions || {};
    Object.assign(rollupConfig || {}, viteRollupConfig);
-
-   if (!child && rollupConfig && rollupConfig.input) {
-      const mapentries = mapEntriesToOutdirs(rollupConfig.input, rootdir, outdir)
-      if (mapentries.length > 1) {
-         spinner.text = `📦 Bundling ${mapentries.length} entries...`;
-      }
-
-      for (const { entry } of mapentries) {
-         await bundler({
-            ...args,
-            entry,
-            outdir,
-         }, spinner, true);
-      }
+   let input = {}
+   if (rollupConfig && rollupConfig.input) {
+      input = normalizeInput(rollupConfig.input, args.entry);
    }
+
+   input["index"] = args.entry;
+
 
    const config = {
       ...rollupConfig,
-      input: args.entry,
+      input,
       external: id => {
          if (rollupConfig && typeof rollupConfig.external === "function") {
             if (rollupConfig.external(id)) return true;
@@ -129,9 +107,11 @@ async function bundler(args, spinner, child = false) {
          if (Array.isArray(rollupConfig && rollupConfig.external)) {
             if (rollupConfig.external.includes(id)) return true;
          }
+
          return !id.startsWith(".") && !id.startsWith("/") && !/^[A-Za-z]:\\/.test(id);
       },
       plugins: [
+         preserveDirectives(),
          json(),
          resolve({ extensions: [".js", ".ts", ".jsx", ".tsx", ".json", ".mjs", ".cjs"] }),
          commonjs(),
@@ -150,7 +130,11 @@ async function bundler(args, spinner, child = false) {
             emitDeclarationOnly: false,
             rootDir: path.resolve(process.cwd(), rootdir)
          }),
-         args.minify ? terser() : null,
+         args.minify ? terser({
+            compress: {
+               directives: false
+            }
+         }) : null,
          ...(rollupConfig?.plugins || [])
       ]
    };
