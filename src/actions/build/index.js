@@ -7,7 +7,7 @@ import bundler from './bundler.js';
 const build = async (args) => {
    /*
      args options:
-     --format=both
+     --format=both or esm,cjs,iife,umd
      --bundle=true
      --minify=false
      --sourcemap=true
@@ -39,7 +39,7 @@ const build = async (args) => {
    }
 
    args = {
-      format: args.format || 'both',
+      format: args.format ??= "modern",
       bundle: beBool('bundle'),
       minify: beBool('minify'),
       sourcemap: beBool('sourcemap'),

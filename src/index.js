@@ -24,7 +24,7 @@ program
 program
    .command("build")
    .description("Build the project")
-   .option("-f, --format <format>", "Output format (cjs, esm, both)", "both")
+   .option("-f, --format <format>", "Output format (modern, cjs, esm, umd, iife)", "modern")
    .option("-b, --bundle <bundle>", "Bundle the project", false)
    .option("-m, --minify <minify>", "Minify the output", false)
    .option("-s, --sourcemap <sourcemap>", "Generate sourcemaps", true)

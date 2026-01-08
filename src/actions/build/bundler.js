@@ -141,47 +141,35 @@ async function bundler(args, spinner, child = false) {
 
    const bundle = await rollup(config);
 
-
-
    // --------------------- Output formats ---------------------
-   const outputs = [];
-   if (!args.format || args.format === "both") {
-      outputs.push({
-         dir: outdir,
-         format: "esm",
-         sourcemap: args.sourcemap,
-         preserveModules: true,
-         preserveModulesRoot: rootdir,
-         entryFileNames: "[name].mjs",
-      });
-      outputs.push({
-         dir: outdir,
-         format: "cjs",
-         sourcemap: args.sourcemap,
-         preserveModules: true,
-         preserveModulesRoot: rootdir,
-         entryFileNames: "[name].js",
-      });
-   } else if (args.format === "esm" || args.format === "cjs") {
-      outputs.push({
-         dir: outdir,
-         format: args.format,
-         sourcemap: args.sourcemap,
-         preserveModules: true,
-         preserveModulesRoot: rootdir,
-         entryFileNames: args.format === "esm" ? "[name].mjs" : "[name].js",
-      });
-   } else if (args.format === "iife" || args.format === "umd") {
-      outputs.push({
-         dir: outdir,
-         format: args.format,
-         name: args.name || "Bundle",
-         sourcemap: args.sourcemap,
-         entryFileNames: "[name].js",
-      });
+   const outputs = []
+   const isModern = args.format === "modern";
+   const formats = isModern ? ["esm", "cjs"] : [args.format];
+
+   for (let f of formats) {
+      const isFirst = formats[0] === f;
+      const dir = isFirst ? outdir : path.join(outdir, f);
+
+      if (f === "esm" || f === "cjs") {
+         let ext = isModern ? f === "esm" ? "js" : "cjs" : "js"
+         outputs.push({
+            dir,
+            format: f,
+            sourcemap: args.sourcemap,
+            preserveModules: true,
+            preserveModulesRoot: rootdir,
+            entryFileNames: `[name].${ext}`,
+         });
+      } else if (f === "iife" || f === "umd") {
+         outputs.push({
+            dir,
+            format: f,
+            name: args.name || "Bundle",
+            sourcemap: args.sourcemap,
+            entryFileNames: "[name].js",
+         });
+      }
    }
-
-
 
    for (const output of outputs) {
       await bundle.write(output);
