@@ -147,13 +147,11 @@ async function bundler(args, spinner, child = false) {
    const formats = isModern ? ["esm", "cjs"] : [args.format];
 
    for (let f of formats) {
-      const isFirst = formats[0] === f;
-      const dir = isFirst ? outdir : path.join(outdir, f);
 
       if (f === "esm" || f === "cjs") {
          let ext = isModern ? f === "esm" ? "js" : "cjs" : "js"
          outputs.push({
-            dir,
+            dir: outdir,
             format: f,
             sourcemap: args.sourcemap,
             preserveModules: true,
@@ -190,7 +188,6 @@ async function bundler(args, spinner, child = false) {
          plugins: [dts()],
       });
       await bundlets.write({
-         format: "esm",
          preserveModules: true,
          preserveModulesRoot: args.rootdir,
          dir: path.join(args.outdir),
