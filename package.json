@@ -1,6 +1,6 @@
 {
   "name": "makepack",
-  "version": "1.7.27",
+  "version": "1.7.28",
   "type": "module",
   "description": "A CLI tool to create, build, and manage JavaScript, TypeScript, React, and React-TypeScript libraries for npm projects.",
   "categories": [
