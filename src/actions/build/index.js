@@ -66,7 +66,7 @@ const build = async (args) => {
       if (await fs.pathExists(pkgPath)) {
          const pkgjson = await fs.readJson(pkgPath);
          delete pkgjson.scripts;
-         // delete pkgjson.type;
+         delete pkgjson.type;
          delete pkgjson.devDependencies;
          delete pkgjson.jest;
          delete pkgjson.prettier;
